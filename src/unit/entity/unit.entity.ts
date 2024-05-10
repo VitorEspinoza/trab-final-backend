@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-import { Adress } from './Adress';
+import { adressEntity } from 'src/adress/entity/adress.entity';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne, JoinColumn } from 'typeorm';
+
 
 @Entity()
 export class unitEntity{
@@ -13,8 +14,9 @@ export class unitEntity{
     })
     name: string;
 
-    @ManyToOne(() => Adress, adress => adress.units)
-  adress: Adress;
+    @OneToOne(() => adressEntity)
+    @JoinColumn()
+    adress: adressEntity
 
   @CreateDateColumn()
   createdAt: string;
