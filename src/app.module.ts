@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { UserEntity } from './user/entity/user.entity';
+import { DoctorEntity } from './doctor / entity/doctor.entity';
 
 @Module({
   imports: [
@@ -15,9 +16,9 @@ import { UserEntity } from './user/entity/user.entity';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      entities: [UserEntity],
+      entities: [UserEntity, DoctorEntity],
       synchronize: process.env.ENV === 'development',
-    })
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
