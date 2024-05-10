@@ -1,14 +1,15 @@
+import { adressEntity } from 'src/adress/entity/adress.entity';
+import { unitEntity } from 'src/unit/entity/unit.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
- import { unitEntity} from './unit.entity.ts';
- import { adressEntity} from './adress.entity.ts';
- 
 @Entity()
 export class DoctorEntity {
   @PrimaryGeneratedColumn({
@@ -40,11 +41,11 @@ export class DoctorEntity {
   @UpdateDateColumn()
   updatedAt: string;
 
-   @ManyToOne(() => unitEntity, (idUnit) => idUnit.Doctor)
-  @JoinColumn({ name: 'Unit_idUnit_FK' })
-   idUnit: unitEntity;
+  // @ManyToOne(() => unitEntity, (idUnit) => idUnit.DoctorEntity)
+  // @JoinColumn({ name: 'Unit_idUnit_FK' })
+  // idUnit: unitEntity;
 
-   @ManyToOne(() => adressEntity, (idAdress) => idAdress.Doctor))
-   @JoinColumn({ name: 'Unit_idAdress_FK' })
-   idAdress: adressEntity;
+  // @ManyToOne(() => adressEntity, (idAdress) => idAdress.Doctor)
+  @JoinColumn({ name: 'Unit_idAdress_FK' })
+  idAdress: adressEntity;
 }
