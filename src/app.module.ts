@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { UserEntity } from './user/entity/user.entity';
 import { DoctorEntity } from './doctor/entity/doctor.entity';
 import { unitEntity } from './unit/entity/unit.entity';
+import { specialtyEntity } from './specialty/entity/specialty.entity';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { unitEntity } from './unit/entity/unit.entity';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      entities: [UserEntity, DoctorEntity, unitEntity],
+      entities: [UserEntity, DoctorEntity, unitEntity, specialtyEntity],
       synchronize: process.env.ENV === 'development',
     }),
   ],
