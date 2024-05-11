@@ -41,11 +41,6 @@ export class DoctorEntity {
   @UpdateDateColumn()
   updatedAt: string;
 
-  // @ManyToOne(() => unitEntity, (idUnit) => idUnit.DoctorEntity)
-  // @JoinColumn({ name: 'Unit_idUnit_FK' })
-  // idUnit: unitEntity;
-
-  // @ManyToOne(() => adressEntity, (idAdress) => idAdress.Doctor)
-  @JoinColumn({ name: 'Unit_idAdress_FK' })
-  idAdress: adressEntity;
+  @ManyToOne(() => unitEntity, (unit) => unit.doctors)
+  unit: unitEntity;
 }
