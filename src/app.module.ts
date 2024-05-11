@@ -7,6 +7,7 @@ import { UserEntity } from './user/entity/user.entity';
 import { DoctorEntity } from './doctor/entity/doctor.entity';
 import { unitEntity } from './unit/entity/unit.entity';
 import { specialtyEntity } from './specialty/entity/specialty.entity';
+import { AssociateEntity } from './associate/entity/associate.entity';
 
 @Module({
   imports: [
@@ -18,7 +19,13 @@ import { specialtyEntity } from './specialty/entity/specialty.entity';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      entities: [UserEntity, DoctorEntity, unitEntity, specialtyEntity],
+      entities: [
+        UserEntity,
+        DoctorEntity,
+        unitEntity,
+        specialtyEntity,
+        AssociateEntity,
+      ],
       synchronize: process.env.ENV === 'development',
     }),
   ],

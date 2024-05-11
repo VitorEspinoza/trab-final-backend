@@ -1,45 +1,56 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+  OneToMany,
+} from 'typeorm';
+import { AssociateEntity } from '../../associate/entity/associate.entity';
 
 @Entity()
-export class adressEntity{
-    @PrimaryGeneratedColumn({
-        unsigned: true
-    })
-    idAdress: number;
+export class adressEntity {
+  @OneToMany(() => AssociateEntity, (associate) => associate.address)
+  associates: AssociateEntity[];
 
-    @Column({
-        length: 40
-    })
-    city: string;
+  @PrimaryGeneratedColumn({
+    unsigned: true,
+  })
+  idAdress: number;
 
-    @Column({
-        length: 30,
-    })
-    state: string;
+  @Column({
+    length: 40,
+  })
+  city: string;
 
-    @Column({
-        length: 40
-    })
-    neighborhood: string;
+  @Column({
+    length: 30,
+  })
+  state: string;
 
-    @Column({
-        length: 5
-    })
-    number: string;
+  @Column({
+    length: 40,
+  })
+  neighborhood: string;
 
-    @Column({
-        length: 8,
-    })
-    zipCode: string;
+  @Column({
+    length: 5,
+  })
+  number: string;
 
-    @Column({
-        length: 100
-    })
-    street: string;
+  @Column({
+    length: 8,
+  })
+  zipCode: string;
 
-    @CreateDateColumn()
-    createdAt: string;
+  @Column({
+    length: 100,
+  })
+  street: string;
 
-    @UpdateDateColumn()
-    updatedAt: string;
+  @CreateDateColumn()
+  createdAt: string;
+
+  @UpdateDateColumn()
+  updatedAt: string;
 }
