@@ -1,5 +1,6 @@
 import { AdressEntity } from 'src/adress/entity/adress.entity';
 import { DoctorEntity } from 'src/doctor/entity/doctor.entity';
+import { UnitHasSpecialtyEntity } from 'src/unitHasSpecialty/entity/unitHasSpecialty.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -30,9 +31,13 @@ export class UnitEntity {
   @OneToMany(() => DoctorEntity, (doctors) => doctors.unit)
   doctors: DoctorEntity[];
 
+  @OneToMany(() => UnitHasSpecialtyEntity, unitHasSpecialty => unitHasSpecialty.specialty)
+  public unitHasSpecialty: UnitHasSpecialtyEntity[];
+
   @CreateDateColumn()
   createdAt: string;
 
   @UpdateDateColumn()
   updatedAt: string;
+  
 }

@@ -1,4 +1,5 @@
 import { DoctorHasSpecialtyEntity } from 'src/doctorHasSpecialty/entity/doctorHasSpecialty.entity';
+import { UnitHasSpecialtyEntity } from 'src/unitHasSpecialty/entity/unitHasSpecialty.entity';
 import {
   Column,
   CreateDateColumn,
@@ -28,4 +29,7 @@ export class SpecialtyEntity {
 
   @OneToMany(() => DoctorHasSpecialtyEntity, doctorHasSpecialty => doctorHasSpecialty.doctor)
   public doctorHasSpecialty: DoctorHasSpecialtyEntity[];
+
+  @OneToMany(() => UnitHasSpecialtyEntity, unitHasSpecialty => unitHasSpecialty.unit)
+  public unitHasSpecialty: UnitHasSpecialtyEntity[];
 }
