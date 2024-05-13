@@ -1,4 +1,4 @@
-import { DoctorHasSpecialtyEntity } from 'src/doctorHasSpecialty/entity/doctorHasSpecialy.entity';
+import { DoctorHasSpecialtyEntity } from 'src/doctorHasSpecialty/entity/doctorHasSpecialty.entity';
 import {
   Column,
   CreateDateColumn,

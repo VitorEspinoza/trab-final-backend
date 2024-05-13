@@ -1,4 +1,4 @@
-import { DoctorHasSpecialtyEntity } from "src/doctorHasSpecialty/entity/doctorHasSpecialy.entity";
+import { DoctorHasSpecialtyEntity } from "src/doctorHasSpecialty/entity/doctorHasSpecialty.entity";
 import { UnitEntity } from "src/unit/entity/unit.entity";
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany } from "typeorm";
 
