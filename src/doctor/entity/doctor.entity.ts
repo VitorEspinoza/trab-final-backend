@@ -1,16 +1,6 @@
-import { adressEntity } from 'src/adress/entity/adress.entity';
-import { doctorHasSpecialtyEntity } from 'src/doctorHasSpecialty/entity/doctorHasSpecialy.entity';
-import { unitEntity } from 'src/unit/entity/unit.entity';
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  ManyToMany,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { DoctorHasSpecialtyEntity } from "src/doctorHasSpecialty/entity/doctorHasSpecialy.entity";
+import { UnitEntity } from "src/unit/entity/unit.entity";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany } from "typeorm";
 
 @Entity()
 export class DoctorEntity {
@@ -43,9 +33,9 @@ export class DoctorEntity {
   @UpdateDateColumn()
   updatedAt: string;
 
-  @ManyToOne(() => unitEntity, (unit) => unit.doctors)
-  unit: unitEntity;
+  @ManyToOne(() => UnitEntity, (unit) => unit.doctors)
+  unit: UnitEntity;
 
-  @ManyToMany(() => doctorHasSpecialtyEntity)
-  doctorsHasSpecialty: doctorHasSpecialtyEntity[];
+  @OneToMany(() => DoctorHasSpecialtyEntity, doctorHasSpecialty => doctorHasSpecialty.specialty)
+  public doctorHasSpecialty: DoctorHasSpecialtyEntity[];
 }

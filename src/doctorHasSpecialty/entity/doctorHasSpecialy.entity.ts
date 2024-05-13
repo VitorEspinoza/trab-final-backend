@@ -1,22 +1,36 @@
 import { DoctorEntity } from 'src/doctor/entity/doctor.entity';
-import { specialtyEntity } from 'src/specialty/entity/specialty.entity';
-import { unitEntity } from 'src/unit/entity/unit.entity';
+import { SpecialtyEntity } from 'src/specialty/entity/specialty.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
-  JoinTable,
-  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
-export class doctorHasSpecialtyEntity {
-  @Column({})
-  principalSpecialty: Boolean;
+export class DoctorHasSpecialtyEntity {
+    @PrimaryGeneratedColumn({
+    unsigned: true,
+  })
+  idDoctorHasSpecialty: number;
+
+  @Column()
+  principalSpecialty: boolean;
+
+  @Column()
+  doctorId: number;
+
+  @Column()
+  specialtyId: number;
+
+
+  @ManyToOne(() => DoctorEntity, (doctor) => doctor.doctorHasSpecialty)
+  public doctor: DoctorEntity
+
+  @ManyToOne(() => SpecialtyEntity, (specialty) => specialty.doctorHasSpecialty)
+  public specialty: SpecialtyEntity
 
   @CreateDateColumn()
   createdAt: string;
@@ -24,18 +38,4 @@ export class doctorHasSpecialtyEntity {
   @UpdateDateColumn()
   updatedAt: string;
 
-  @ManyToOne(() => unitEntity, (unit) => unit.doctors)
-  unit: unitEntity;
-
-  @ManyToMany(() => DoctorEntity, (doctor) => doctor.idDoctor)
-  @JoinTable()
-  doctorsById: DoctorEntity[];
-
-  @ManyToMany(() => DoctorEntity, (doctor) => doctor.unit)
-  @JoinTable()
-  doctorsByUnit: DoctorEntity[];
-
-  @ManyToMany(() => specialtyEntity, (specialty) => specialty.idSpecialty)
-  @JoinTable()
-  specialtyById: specialtyEntity[];
 }

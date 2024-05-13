@@ -1,15 +1,15 @@
-import { doctorHasSpecialtyEntity } from 'src/doctorHasSpecialty/entity/doctorHasSpecialy.entity';
+import { DoctorHasSpecialtyEntity } from 'src/doctorHasSpecialty/entity/doctorHasSpecialy.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
-  ManyToMany,
+  OneToMany,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
+  
 } from 'typeorm';
 
 @Entity()
-export class specialtyEntity {
+export class SpecialtyEntity {
   @PrimaryGeneratedColumn({
     unsigned: true,
   })
@@ -23,9 +23,9 @@ export class specialtyEntity {
   @CreateDateColumn()
   createdAt: string;
 
-  @UpdateDateColumn()
+  @CreateDateColumn()
   updatedAt: string;
 
-  @ManyToMany(() => doctorHasSpecialtyEntity)
-  doctorsHasSpecialty: doctorHasSpecialtyEntity[];
+  @OneToMany(() => DoctorHasSpecialtyEntity, doctorHasSpecialty => doctorHasSpecialty.doctor)
+  public doctorHasSpecialty: DoctorHasSpecialtyEntity[];
 }
