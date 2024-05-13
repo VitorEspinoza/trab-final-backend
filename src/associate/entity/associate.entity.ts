@@ -8,7 +8,7 @@ import {
   OneToOne,
   JoinColumn,
 } from 'typeorm';
-import { adressEntity } from '../../adress/entity/adress.entity';
+import { AdressEntity } from '../../adress/entity/adress.entity';
 import { UserEntity } from '../../user/entity/user.entity';
 
 @Entity()
@@ -44,9 +44,9 @@ export class AssociateEntity {
   })
   healthInsuranceIdentifier: string;
 
-  @ManyToOne(() => adressEntity)
+  @ManyToOne(() => AdressEntity)
   @JoinColumn()
-  address: adressEntity;
+  address: AdressEntity;
 
   @OneToOne(() => UserEntity)
   @JoinColumn()

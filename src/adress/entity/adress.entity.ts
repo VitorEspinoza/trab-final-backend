@@ -9,7 +9,7 @@ import {
 import { AssociateEntity } from '../../associate/entity/associate.entity';
 
 @Entity()
-export class adressEntity {
+export class AdressEntity {
   @OneToMany(() => AssociateEntity, (associate) => associate.address)
   associates: AssociateEntity[];
 

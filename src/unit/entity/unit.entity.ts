@@ -1,4 +1,4 @@
-import { adressEntity } from 'src/adress/entity/adress.entity';
+import { AdressEntity } from 'src/adress/entity/adress.entity';
 import { DoctorEntity } from 'src/doctor/entity/doctor.entity';
 import {
   Entity,
@@ -12,7 +12,7 @@ import {
 } from 'typeorm';
 
 @Entity()
-export class unitEntity {
+export class UnitEntity {
   @PrimaryGeneratedColumn({
     unsigned: true,
   })
@@ -23,9 +23,9 @@ export class unitEntity {
   })
   name: string;
 
-  @OneToOne(() => adressEntity)
+  @OneToOne(() => AdressEntity)
   @JoinColumn()
-  adress: adressEntity;
+  adress: AdressEntity;
 
   @OneToMany(() => DoctorEntity, (doctors) => doctors.unit)
   doctors: DoctorEntity[];
