@@ -1,4 +1,5 @@
 import { adressEntity } from 'src/adress/entity/adress.entity';
+import { doctorHasSpecialtyEntity } from 'src/doctorHasSpecialty/entity/doctorHasSpecialy.entity';
 import { unitEntity } from 'src/unit/entity/unit.entity';
 import {
   Column,
@@ -6,6 +7,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  ManyToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -43,4 +45,7 @@ export class DoctorEntity {
 
   @ManyToOne(() => unitEntity, (unit) => unit.doctors)
   unit: unitEntity;
+
+  @ManyToMany(() => doctorHasSpecialtyEntity)
+  doctorsHasSpecialty: doctorHasSpecialtyEntity[];
 }
