@@ -17,8 +17,8 @@ export class UserDTO {
     })
     password: string;
 
-    @IsEnum([Role[Role.Associate], Role[Role.Admin]], {
+    @IsEnum(Object.values(Role), {
         message: 'Valid role required'
     })
-    role: 'Associate' | 'Admin' = 'Associate';
+    role: Role.ASSOCIATE | Role.ADMIN = Role.ASSOCIATE;
 }
