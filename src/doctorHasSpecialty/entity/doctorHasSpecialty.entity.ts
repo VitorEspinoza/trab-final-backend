@@ -14,7 +14,7 @@ export class DoctorHasSpecialtyEntity {
     @PrimaryGeneratedColumn({
     unsigned: true,
   })
-  idDoctorHasSpecialty: number;
+  doctorHasSpecialtyId: number;
 
   @Column()
   principalSpecialty: boolean;

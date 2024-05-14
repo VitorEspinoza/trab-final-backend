@@ -14,7 +14,7 @@ export class SpecialtyEntity {
   @PrimaryGeneratedColumn({
     unsigned: true,
   })
-  idSpecialty: number;
+  specialtyId: number;
 
   @Column({
     length: 255,
