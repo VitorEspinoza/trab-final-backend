@@ -17,7 +17,7 @@ export class UnitEntity {
   @PrimaryGeneratedColumn({
     unsigned: true,
   })
-  idUnit: number;
+  unitId: number;
 
   @Column({
     length: 255,

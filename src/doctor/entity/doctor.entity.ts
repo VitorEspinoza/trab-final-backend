@@ -7,7 +7,7 @@ export class DoctorEntity {
   @PrimaryGeneratedColumn({
     unsigned: true,
   })
-  idDoctor: number;
+  doctorId: number;
 
   @Column({
     length: 255,

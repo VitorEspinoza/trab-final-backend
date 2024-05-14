@@ -16,7 +16,7 @@ export class AdressEntity {
   @PrimaryGeneratedColumn({
     unsigned: true,
   })
-  idAdress: number;
+  adressId: number;
 
   @Column({
     length: 40,
