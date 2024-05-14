@@ -432,7 +432,16 @@ export class Migrate1715644542318 implements MigrationInterface {
         
     }
 
-    public async down(): Promise<void> {
+    public async down(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.dropTable('associate');
+        await queryRunner.dropTable('unit_has_specialty');
+        await queryRunner.dropTable('doctor_has_specialty');
+        await queryRunner.dropTable('specialty');
+        await queryRunner.dropTable('doctor');
+        await queryRunner.dropTable('unit');
+        await queryRunner.dropTable('user');
+        await queryRunner.dropTable('adress');
+
     }
 
 }
