@@ -16,7 +16,7 @@ export class AssociateEntity {
   @PrimaryGeneratedColumn({
     unsigned: true,
   })
-  idAssociate: number;
+  associateId: number;
 
   @Column({
     length: 11,
