@@ -5,9 +5,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { UserEntity } from './user/entity/user.entity';
 import { DoctorEntity } from './doctor/entity/doctor.entity';
-import { unitEntity } from './unit/entity/unit.entity';
-import { specialtyEntity } from './specialty/entity/specialty.entity';
+
 import { AssociateEntity } from './associate/entity/associate.entity';
+import { DoctorHasSpecialtyEntity } from './doctorHasSpecialty/entity/doctorHasSpecialty.entity';
+import { UnitHasSpecialtyEntity } from './unitHasSpecialty/entity/unitHasSpecialty.entity';
+import { AdressEntity } from './adress/entity/adress.entity';
+import { SpecialtyEntity } from './specialty/entity/specialty.entity';
+import { UnitEntity } from './unit/entity/unit.entity';
 
 @Module({
   imports: [
@@ -22,9 +26,13 @@ import { AssociateEntity } from './associate/entity/associate.entity';
       entities: [
         UserEntity,
         DoctorEntity,
-        unitEntity,
-        specialtyEntity,
+        UnitEntity,
+        SpecialtyEntity,
         AssociateEntity,
+        DoctorHasSpecialtyEntity,
+        UnitHasSpecialtyEntity,
+        AdressEntity,
+
       ],
       synchronize: process.env.ENV === 'development',
     }),
