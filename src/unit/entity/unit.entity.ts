@@ -12,7 +12,7 @@ import {
   OneToMany,
 } from 'typeorm';
 
-@Entity()
+@Entity('unit')
 export class UnitEntity {
   @PrimaryGeneratedColumn({
     unsigned: true,
