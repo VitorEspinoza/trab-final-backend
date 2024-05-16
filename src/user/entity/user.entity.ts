@@ -33,10 +33,10 @@ export class UserEntity {
 
   @Column({
     type: 'enum',
-    enum: [Role.Associate, Role.Admin],
-    default: Role.Associate,
+    enum: [Role.ASSOCIATE, Role.ADMIN],
+    default: Role.ASSOCIATE,
   })
-  role: number;
+  role: string;
 
   @CreateDateColumn()
   createdAt: string;
