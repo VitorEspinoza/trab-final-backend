@@ -9,7 +9,7 @@ import {
   
 } from 'typeorm';
 
-@Entity()
+@Entity('specialty')
 export class SpecialtyEntity {
   @PrimaryGeneratedColumn({
     unsigned: true,

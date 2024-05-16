@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -12,9 +12,11 @@ import { UnitHasSpecialtyEntity } from './unitHasSpecialty/entity/unitHasSpecial
 import { AdressEntity } from './adress/entity/adress.entity';
 import { SpecialtyEntity } from './specialty/entity/specialty.entity';
 import { UnitEntity } from './unit/entity/unit.entity';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
+    forwardRef(() => UserModule),
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'mysql',
@@ -32,7 +34,6 @@ import { UnitEntity } from './unit/entity/unit.entity';
         DoctorHasSpecialtyEntity,
         UnitHasSpecialtyEntity,
         AdressEntity,
-
       ],
       synchronize: process.env.ENV === 'development',
     }),

@@ -9,7 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity()
+@Entity('unit_has_specialty')
 export class UnitHasSpecialtyEntity {
     @PrimaryGeneratedColumn({
     unsigned: true,
