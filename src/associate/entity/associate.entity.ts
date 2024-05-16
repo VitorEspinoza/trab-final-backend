@@ -27,12 +27,6 @@ export class AssociateEntity {
   birthAt: Date;
 
   @Column({
-    length: 127,
-    unique: true,
-  })
-  password: string;
-
-  @Column({
     length: 11,
     unique: true,
   })
