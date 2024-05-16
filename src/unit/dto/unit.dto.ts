@@ -12,7 +12,7 @@ export class UnitDTO{
     adressDto: AdressDTO;
 
     @IsArray()
-    @ValidateNested()
+    @ValidateNested({ each: true})
     @Type(() => SpecialtyDTO)
     specialtyDto: SpecialtyDTO[];
 }
