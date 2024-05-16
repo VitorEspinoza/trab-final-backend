@@ -11,7 +11,7 @@ import {
 import { AdressEntity } from '../../adress/entity/adress.entity';
 import { UserEntity } from '../../user/entity/user.entity';
 
-@Entity()
+@Entity('associate')
 export class AssociateEntity {
   @PrimaryGeneratedColumn({
     unsigned: true,
