@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import { AssociateEntity } from '../../associate/entity/associate.entity';
 
-@Entity()
+@Entity('adress')
 export class AdressEntity {
   @OneToMany(() => AssociateEntity, (associate) => associate.address)
   associates: AssociateEntity[];

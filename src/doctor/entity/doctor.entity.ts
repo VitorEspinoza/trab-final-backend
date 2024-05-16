@@ -2,7 +2,7 @@ import { DoctorHasSpecialtyEntity } from "src/doctorHasSpecialty/entity/doctorHa
 import { UnitEntity } from "src/unit/entity/unit.entity";
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany } from "typeorm";
 
-@Entity()
+@Entity('doctor')
 export class DoctorEntity {
   @PrimaryGeneratedColumn({
     unsigned: true,
