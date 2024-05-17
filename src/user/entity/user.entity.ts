@@ -31,13 +31,12 @@ export class UserEntity {
   })
   password: string;
 
-  @Column({
+ @Column({
     type: 'enum',
     enum: [Role.ASSOCIATE, Role.ADMIN],
     default: Role.ASSOCIATE,
   })
   role: string;
-
   @CreateDateColumn()
   createdAt: string;
 
