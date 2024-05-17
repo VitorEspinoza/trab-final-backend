@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from "@nestjs/common";
 import { UserDTO } from "./dto/user.dto";
 import { UserService } from "./user.service";
+import { ParamId } from "src/decorators/param-id.decorator";
 
 @Controller('users')
 export class UserController {
@@ -22,12 +23,12 @@ export class UserController {
     }
 
     @Put(':id') 
-    async update(@Body() body : UserDTO, @Param('id', ParseIntPipe) id) {
+    async update(@Body() body : UserDTO, @ParamId() id: number) {
         return this.userService.update(id, body);
     }
 
     @Delete(':id')
-    async delete(@Param('id', ParseIntPipe) id) {
+    async delete(@ParamId() id: number) {
         return this.userService.delete(id);
     }
     
