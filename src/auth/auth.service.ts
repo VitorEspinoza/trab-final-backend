@@ -6,6 +6,7 @@ import { Repository } from "typeorm";
 import { UserDTO } from "src/user/dto/user.dto";
 import { UserService } from "src/user/user.service";
 import { Role } from "src/enums/role.enum";
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -56,14 +57,18 @@ isValidToken(token: string) {
 
 async login(email: string, password: string){
     const user = await this.usersRepository.findOneBy({
-      email,
-      password
+      email
     });
 
-    if (!user) {
+    if (!user) 
       throw new UnauthorizedException('E-mail e/ou senha incorretos.');
-    }
+    
 
+    const incorrectPassword = !await bcrypt.compare(password, user.password);
+
+    if(incorrectPassword) 
+      throw new UnauthorizedException('E-mail e/ou senha incorretos.');
+    
     return this.createToken(user);
  
 }
