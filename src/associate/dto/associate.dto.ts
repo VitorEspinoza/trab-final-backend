@@ -11,13 +11,15 @@ import { UserDTO } from 'src/user/dto/user.dto';
 
 export class AssociateDto {
   @IsMobilePhone('pt-BR')
+  @Length(11)
   phone: string;
 
   @IsDate()
   birthAt: Date;
 
   @IsString()
-  healthInsuranceIdentifierOu: string;
+  @Length(11)
+  healthInsuranceIdentifier: string;
 
   @ValidateNested()
   @Type(() => UserDTO)
@@ -27,6 +29,7 @@ export class AssociateDto {
   @Type(() => AdressDTO)
   addressDTO: AdressDTO;
 
-  @Length(11, 11)
+  @IsString()
+  @Length(11)
   document: string;
 }

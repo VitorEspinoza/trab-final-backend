@@ -41,6 +41,7 @@ export class UserService {
     });
   }
   async update(id: number, data: UserDTO) {
+    delete data.role;
     await this.exists(id);
     await this.usersRepository.update(id, data);
     return this.exists(id);

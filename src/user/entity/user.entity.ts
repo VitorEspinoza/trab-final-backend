@@ -37,7 +37,6 @@ export class UserEntity {
     default: Role.ASSOCIATE,
   })
   role: string;
-  
   @CreateDateColumn()
   createdAt: string;
 

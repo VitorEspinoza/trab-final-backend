@@ -13,10 +13,12 @@ import { AdressEntity } from './adress/entity/adress.entity';
 import { SpecialtyEntity } from './specialty/entity/specialty.entity';
 import { UnitEntity } from './unit/entity/unit.entity';
 import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
     forwardRef(() => UserModule),
+    forwardRef(() => AuthModule),
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'mysql',
@@ -42,3 +44,4 @@ import { UserModule } from './user/user.module';
   providers: [AppService],
 })
 export class AppModule {}
+
