@@ -3,7 +3,7 @@ import { UserDTO } from "./dto/user.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { UserEntity } from "./entity/user.entity";
-
+import * as bcrypt from 'bcrypt';
 @Injectable()
 export class UserService {
     constructor(
@@ -22,6 +22,10 @@ export class UserService {
     ) {
       throw new BadRequestException('Este e-mail já está sendo usado.');
     }
+
+    const salt = await bcrypt.genSalt();
+    
+    data.password =  await bcrypt.hash(data.password, salt);
    
     const user = await this.usersRepository.create(data);
 
