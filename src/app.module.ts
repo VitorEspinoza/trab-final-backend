@@ -14,9 +14,15 @@ import { SpecialtyEntity } from './specialty/entity/specialty.entity';
 import { UnitEntity } from './unit/entity/unit.entity';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
+   ThrottlerModule.forRoot([{
+      ttl: 60000,
+      limit: 100,
+    }]),
     forwardRef(() => UserModule),
     forwardRef(() => AuthModule),
     ConfigModule.forRoot(),
@@ -41,7 +47,10 @@ import { AuthModule } from './auth/auth.module';
     }),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, {
+    provide: APP_GUARD,
+    useClass: ThrottlerGuard
+}],
 })
 export class AppModule {}
 
