@@ -9,10 +9,10 @@ export class UnitDTO{
 
     @ValidateNested()
     @Type(() => AdressDTO)
-    adressDto: AdressDTO;
+    adress: AdressDTO;
 
     @IsArray()
     @ValidateNested({ each: true})
     @Type(() => SpecialtyDTO)
-    specialtyDto: SpecialtyDTO[];
+    specialty: SpecialtyDTO[];
 }

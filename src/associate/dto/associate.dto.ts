@@ -23,11 +23,11 @@ export class AssociateDto {
 
   @ValidateNested()
   @Type(() => UserDTO)
-  userDTO: UserDTO;
+  user: UserDTO;
 
   @ValidateNested()
   @Type(() => AdressDTO)
-  addressDTO: AdressDTO;
+  address: AdressDTO;
 
   @IsString()
   @Length(11)
