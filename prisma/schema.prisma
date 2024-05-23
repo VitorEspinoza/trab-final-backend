@@ -1,0 +1,113 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  userId    String     @id @default(cuid())
+  email     String     @unique @db.VarChar(127)
+  name      String     @db.VarChar(255)
+  role      Role       @default(ASSOCIATE)
+  password  String     @db.VarChar(127)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  Associate Associate?
+}
+
+model Adress {
+  addressId    String      @id @default(cuid())
+  street       String      @db.VarChar(100)
+  number       String      @db.VarChar(5)
+  neighborhood String      @db.VarChar(40)
+  city         String      @db.VarChar(40)
+  state        String      @db.VarChar(30)
+  zipCode      String      @db.VarChar(8)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  Associate    Associate[]
+  Unit         Unit?
+}
+
+model Associate {
+  associateId               String   @id @default(cuid())
+  phone                     String   @db.VarChar(11)
+  birthAt                   DateTime
+  document                  String   @db.VarChar(11)
+  healthInsuranceIdentifier String   @db.VarChar(20)
+  addressId                 String
+  address                   Adress   @relation(fields: [addressId], references: [addressId])
+  userId                    String   @unique
+  user                      User     @relation(fields: [userId], references: [userId])
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+}
+
+model Specialty {
+  specialtyId String               @id @default(cuid())
+  name        String               @unique @db.VarChar(120)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  units       UnitHasSpecialty[]
+  doctors     DoctorHasSpecialty[]
+}
+
+model Unit {
+  unitId      String             @id @default(cuid())
+  name        String             @unique @db.VarChar(120)
+  displayName String             @unique @db.VarChar(60)
+  doctors     Doctor[]
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  addressId   String             @unique
+  address     Adress             @relation(fields: [addressId], references: [addressId])
+  specialties UnitHasSpecialty[]
+}
+
+model UnitHasSpecialty {
+  unitHasSpecialtyId   String    @id @default(cuid())
+  unitId               String
+  specialtyId          String
+  unit                 Unit      @relation(fields: [unitId], references: [unitId])
+  specialties          Specialty @relation(fields: [specialtyId], references: [specialtyId])
+  isPrincipalSpecialty Boolean   @default(false)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+}
+
+model Doctor {
+  doctorId                  String               @id @default(cuid())
+  name                      String               @db.VarChar(255)
+  document                  String               @db.VarChar(11)
+  MedicalRegistrationNumber String               @db.VarChar(11)
+  specialties               DoctorHasSpecialty[]
+  unitId                    String
+  unit                      Unit                 @relation(fields: [unitId], references: [unitId])
+  createdAt                 DateTime             @default(now())
+  updatedAt                 DateTime             @updatedAt
+}
+
+model DoctorHasSpecialty {
+  doctorHasSpecialtyId String    @id @default(cuid())
+  doctorId             String
+  doctor               Doctor    @relation(fields: [doctorId], references: [doctorId])
+  specialtyId          String
+  specialties          Specialty @relation(fields: [specialtyId], references: [specialtyId])
+  isPrincipalSpecialty Boolean   @default(false)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+}
+
+enum Role {
+  ASSOCIATE
+  ADMIN
+}
