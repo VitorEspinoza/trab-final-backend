@@ -8,6 +8,10 @@ export class UnitDTO{
     @MaxLength(120)
     name: string;
 
+    @IsString()
+    @MaxLength(120)
+    displayName: string;
+
     @ValidateNested()
     @Type(() => AdressDTO)
     adress: AdressDTO;
