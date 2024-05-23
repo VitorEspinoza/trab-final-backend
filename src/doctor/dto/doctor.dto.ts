@@ -2,12 +2,10 @@ import { Type } from 'class-transformer';
 import {
   IsArray,
   MaxLength,
-  ValidateNested,
   IsString,
-  maxLength,
+  ValidateNested,
 } from 'class-validator';
-import { DoctorHasSpecialtyEntity } from 'src/doctorHasSpecialty/entity/doctorHasSpecialty.entity';
-import { UnitEntity } from 'src/unit/entity/unit.entity';
+import { UnitDTO } from 'src/unit/dto/unit.dto';
 
 export class DoctorDTO {
   @IsString()
@@ -23,11 +21,10 @@ export class DoctorDTO {
 
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => DoctorHasSpecialtyEntity)
-  specialtyDto: DoctorHasSpecialtyEntity[];
+  @Type(() => DoctorDTO)
+  specialty: DoctorDTO[];
 
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => UnitEntity)
-  unitDto: UnitEntity[];
-}
+  @Type(() => UnitDTO)
+  unit: UnitDTO[];}
