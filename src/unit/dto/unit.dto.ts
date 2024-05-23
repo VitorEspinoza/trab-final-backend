@@ -1,10 +1,11 @@
 import { Type } from "class-transformer";
-import { IsArray, IsString, ValidateNested } from "class-validator";
+import { IsArray, IsString, MaxLength, ValidateNested } from "class-validator";
 import { AdressDTO } from "src/adress/dto/adress.dto";
 import { SpecialtyDTO } from "src/specialty/dto/specialty.dto";
 
 export class UnitDTO{
     @IsString()
+    @MaxLength(120)
     name: string;
 
     @ValidateNested()
