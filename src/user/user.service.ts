@@ -1,25 +1,21 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { UserDTO } from "./dto/user.dto";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import { UserEntity } from "./entity/user.entity";
 import * as bcrypt from 'bcrypt';
+import { PrismaService } from "src/prisma/prisma.service";
 @Injectable()
 export class UserService {
     constructor(
-    @InjectRepository(UserEntity)
-    private usersRepository: Repository<UserEntity>,
+    private prismaService: PrismaService,
   ) {}
      
   
   async create(data: UserDTO) {
-    if (
-      await this.usersRepository.exists({
+    const existUserWithSameEmail = (await this.prismaService.user.count({
         where: {
           email: data.email,
         },
-      })
-    ) {
+      }))
+    if (existUserWithSameEmail) {
       throw new BadRequestException('Este e-mail já está sendo usado.');
     }
 
@@ -27,41 +23,49 @@ export class UserService {
     
     data.password =  await bcrypt.hash(data.password, salt);
    
-    const user = await this.usersRepository.create(data);
 
-    return this.usersRepository.save(user);
+    return this.prismaService.user.create({data})
   }
 
   async read() {
-    return this.usersRepository.find();
+    return this.prismaService.user.findMany();
   }
 
-  async readById(id: number) {
+  async readById(id: string) {
     await this.exists(id);
-    return this.usersRepository.findOne({
-        where: {
-            userId: id
-        }
-    });
+
+    return this.prismaService.user.findUnique({
+            where: {
+                userId: id,
+            }
+        })
   }
-  async update(id: number, data: UserDTO) {
+
+  async update(id: string, data: UserDTO) {
     delete data.role;
     await this.exists(id);
-    await this.usersRepository.update(id, data);
+    await this.prismaService.user.update({
+      where: {
+        userId: id,
+      },
+      data,
+    });
     return this.exists(id);
   }
 
-  async delete(id: number) {
+  async delete(id: string) {
     await this.exists(id);
-    return this.usersRepository.delete(id);
+    return this.prismaService.user.delete({
+      where: { userId: id },
+    });
   }
 
 
-  async exists(id: number) {
+  async exists(id: string) {
     if (
-      !(await this.usersRepository.exists({
+      !(await this.prismaService.user.count({
         where: {
-          userId: id
+          userId: id,
         },
       }))
     ) {

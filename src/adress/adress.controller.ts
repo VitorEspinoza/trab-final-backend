@@ -1,6 +1,5 @@
-import { Body, Controller, Delete, Get, Post, Put } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put } from "@nestjs/common";
 import { AdressDTO } from "./dto/adress.dto";
-import { ParamId } from "src/decorators/param-id.decorator";
 import { AdressService } from "./adress.service";
 
 
@@ -19,17 +18,17 @@ export class AdressController {
     }
 
     @Get(':id')
-    async readById(@ParamId() id: number) {
+    async readById(@Param('id') id: string) {
         return this.adressService.readById(id);
     }
 
     @Put(':id')
-    async update(@Body() body: AdressDTO, @ParamId() id: number) {
+    async update(@Body() body: AdressDTO, @Param('id') id: string) {
         return this.adressService.update(id, body);
     }
 
     @Delete(':id')
-    async delete(@ParamId() id: number) {
+    async delete(@Param('id') id: string) {
         return this.adressService.delete(id);
     }
 }

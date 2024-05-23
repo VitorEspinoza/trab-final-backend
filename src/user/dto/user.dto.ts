@@ -20,5 +20,5 @@ export class UserDTO {
     @IsEnum(Object.values(Role), {
         message: 'Valid role required'
     })
-    role: Role.ASSOCIATE | Role.ADMIN = Role.ASSOCIATE;
+    role?: Role = Role.ASSOCIATE;
 }

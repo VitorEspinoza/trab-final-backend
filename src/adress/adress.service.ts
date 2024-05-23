@@ -1,69 +1,76 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { AdressEntity } from "./entity/adress.entity";
-import { Repository } from "typeorm";
+
 import { AdressDTO } from "./dto/adress.dto";
+import { PrismaService } from "src/prisma/prisma.service";
 
 @Injectable()
 export class AdressService{
     constructor(
-    @InjectRepository(AdressEntity)
-    private adressRepository: Repository<AdressEntity>,
+      private prismaService: PrismaService
 ) {}
 
-async create(adress: AdressDTO) {
-    const existingAdress = await this.adressRepository.findOne({
-      where: {
-        zipCode: adress.zipCode,
-        number: adress.number,
-      },
-    });
-  
-    if (existingAdress) {
-      return {
-        message: 'Este endereço já está sendo utilizado.',
-        adressId: existingAdress.adressId,
-      };
+async create(data: AdressDTO) {
+   const adressId = await this.prismaService.adress.findFirst({
+            where: {
+                 zipCode: data.zipCode,
+                number: data.number,
+            },
+            select: {
+                addressId: true,
+            }
+        })
+     if (adressId) {
+      return { adressId };
     }
   
-    const newAdress = await this.adressRepository.create(adress);
-
-    return this.adressRepository.save(newAdress);
+    return this.prismaService.adress.create({
+      data,
+      select: {
+        addressId: true,
+      }
+    });
 }
 
 async read() {
-    return this.adressRepository.find()
+     return this.prismaService.adress.findMany();
 }
 
-async readById(id: number) {
+async readById(id: string) {
     await this.exists(id);
-    return this.adressRepository.findOne({
-        where: {
-            adressId: id
-        }
-    });
+   return this.prismaService.adress.findUnique({
+            where: {
+                addressId: id,
+            }
+        })
   }
-  async update(id: number, adress: AdressDTO) {
+  async update(id: string, data: AdressDTO) {
     await this.exists(id);
-    await this.adressRepository.update(id, adress);
+    await this.prismaService.adress.update({
+      data, 
+      where: {
+        addressId: id,
+      },
+    });
     return this.exists(id);
   }
 
-  async delete(id: number) {
+  async delete(id: string) {
     await this.exists(id);
-    return this.adressRepository.delete(id);
+    return this.prismaService.adress.delete({
+      where: { 
+        addressId: id 
+      },
+    });
   }
 
-
-  async exists(id: number) {
-    if (
-      !(await this.adressRepository.exists({
-        where: {
-          adressId: id
-        },
-      }))
-    ) {
-      throw new NotFoundException(`O endereço ${id} não existe.`);
+  async exists(id: string) {
+        if (!(await this.prismaService.adress.count({
+            where: {
+               addressId: id,
+            }
+        }))) {
+            throw new NotFoundException(`O endereço ${id} não existe.`);
+        }
     }
-  }
+
 }

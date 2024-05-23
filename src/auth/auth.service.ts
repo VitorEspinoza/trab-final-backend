@@ -1,21 +1,20 @@
 import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { InjectRepository } from "@nestjs/typeorm";
-import { UserEntity } from "src/user/entity/user.entity";
-import { Repository } from "typeorm";
 import { UserDTO } from "src/user/dto/user.dto";
 import { UserService } from "src/user/user.service";
 import { Role } from "src/enums/role.enum";
 import * as bcrypt from 'bcrypt';
+import { PrismaService } from "src/prisma/prisma.service";
+import { User } from "@prisma/client";
 
 @Injectable()
 export class AuthService {
 private issuer = 'login';
 private audience = 'users';
 
-constructor(private readonly jwtService: JwtService, @InjectRepository(UserEntity) private usersRepository: Repository<UserEntity>, private userService: UserService) {}
+constructor(private readonly jwtService: JwtService, private prismaService: PrismaService, private userService: UserService) {}
 
- createToken(user: UserEntity) {
+ createToken(user: User) {
   return {
     accessToken: this.jwtService.sign(
       {
@@ -56,9 +55,11 @@ isValidToken(token: string) {
 }
 
 async login(email: string, password: string){
-    const user = await this.usersRepository.findOneBy({
-      email
-    });
+   const user = await this.prismaService.user.findFirst({
+            where: {
+                email
+            }
+        });
 
     if (!user) 
       throw new UnauthorizedException('E-mail e/ou senha incorretos.');

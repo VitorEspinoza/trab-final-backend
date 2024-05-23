@@ -1,12 +1,14 @@
 import { Module } from "@nestjs/common";
-import { TypeOrmModule } from "@nestjs/typeorm";
-import { AdressEntity } from "./entity/adress.entity";
+
 import { AdressController } from "./adress.controller";
 import { AdressService } from "./adress.service";
+import { AuthModule } from "src/auth/auth.module";
+import { PrismaModule } from "src/prisma/prisma.module";
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([AdressEntity]),
+        PrismaModule,
+        AuthModule
     ],
     controllers: [AdressController],
     providers: [AdressService]

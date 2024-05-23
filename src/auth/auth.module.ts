@@ -2,12 +2,12 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserEntity } from 'src/user/entity/user.entity';
+
 import { UserModule } from 'src/user/user.module';
 import { AuthService } from './auth.service';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { RoleGuard } from 'src/guards/role.guard';
+import { PrismaModule } from 'src/prisma/prisma.module';
 
 @Module({
   imports: [
@@ -15,7 +15,7 @@ import { RoleGuard } from 'src/guards/role.guard';
       secret: String(process.env.JWT_SECRET),
     }),
     forwardRef(() => UserModule),
-    TypeOrmModule.forFeature([UserEntity]),
+    PrismaModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, AuthGuard, RoleGuard],
