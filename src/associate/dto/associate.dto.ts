@@ -18,7 +18,7 @@ export class AssociateDto {
   birthAt: Date;
 
   @IsString()
-  @Length(11)
+  @Length(20)
   healthInsuranceIdentifier: string;
 
   @ValidateNested()
