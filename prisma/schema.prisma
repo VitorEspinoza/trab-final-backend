@@ -36,6 +36,8 @@ model Adress {
   updatedAt    DateTime    @updatedAt
   Associate    Associate[]
   Unit         Unit?
+
+  @@unique([zipCode, number])
 }
 
 model Associate {
