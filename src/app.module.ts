@@ -6,6 +6,8 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { AddressModule } from './adress/address.module';
+import { AssociateModule } from './associate/associate.module';
+import { DoctorModule } from './doctor/doctor.module';
 
 @Module({
   imports: [ThrottlerModule.forRoot([{
@@ -15,6 +17,8 @@ import { AddressModule } from './adress/address.module';
     forwardRef(() => UserModule),
     forwardRef(() => AuthModule),
     forwardRef(() => AddressModule),
+    forwardRef(() => AssociateModule),
+    forwardRef(() => DoctorModule),
   ],
   controllers: [AppController],
   providers: [AppService, {
