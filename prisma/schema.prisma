@@ -21,7 +21,7 @@ model User {
   password  String     @db.VarChar(127)
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
-  Associate Associate?
+  associate Associate?
 }
 
 model Adress {
@@ -34,7 +34,7 @@ model Adress {
   zipCode      String      @db.VarChar(8)
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
-  Associate    Associate[]
+  associate    Associate[]
   Unit         Unit?
 
   @@unique([zipCode, number])
@@ -90,7 +90,7 @@ model Doctor {
   doctorId                  String               @id @default(cuid())
   name                      String               @db.VarChar(255)
   document                  String               @db.VarChar(11)
-  MedicalRegistrationNumber String               @db.VarChar(11)
+  medicalRegistrationNumber String               @db.VarChar(11)
   specialties               DoctorHasSpecialty[]
   unitId                    String
   unit                      Unit                 @relation(fields: [unitId], references: [unitId])
