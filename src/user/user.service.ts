@@ -10,15 +10,9 @@ export class UserService {
      
   
   async create(data: UserDTO) {
-    const existUserWithSameEmail = (await this.prismaService.user.count({
-        where: {
-          email: data.email,
-        },
-      }))
-    if (existUserWithSameEmail) {
-      throw new BadRequestException('Este e-mail já está sendo usado.');
-    }
-
+  
+    this.verifyEmailExists(data.email);
+    
     const salt = await bcrypt.genSalt();
     
     data.password =  await bcrypt.hash(data.password, salt);
@@ -71,5 +65,17 @@ export class UserService {
     ) {
       throw new NotFoundException(`O usuário ${id} não existe.`);
     }
+  }
+
+  async verifyEmailExists(email: string) {
+      const existUserWithSameEmail = (await this.prismaService.user.count({
+        where: {
+          email
+        },
+      }))
+    if (existUserWithSameEmail) {
+      throw new BadRequestException('Este e-mail já está sendo usado.');
+    }
+
   }
 }
