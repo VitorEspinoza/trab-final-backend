@@ -5,7 +5,7 @@ import { UserService } from "src/user/user.service";
 import { Role } from "src/enums/role.enum";
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from "src/prisma/prisma.service";
-import { User } from "@prisma/client";
+
 
 @Injectable()
 export class AuthService {
@@ -14,15 +14,15 @@ private audience = 'users';
 
 constructor(private readonly jwtService: JwtService, private prismaService: PrismaService, private userService: UserService) {}
 
- createToken(user: User) {
+ createToken(userId: string) {
   return {
     accessToken: this.jwtService.sign(
       {
-      id: user.userId,
+      id: userId,
       },
       {
         expiresIn: '2 days',
-        subject: String(user.userId),
+        subject: userId,
         issuer: this.issuer,
         audience: this.audience
       }
@@ -70,7 +70,7 @@ async login(email: string, password: string){
     if(incorrectPassword) 
       throw new UnauthorizedException('E-mail e/ou senha incorretos.');
     
-    return this.createToken(user);
+    return this.createToken(user.userId);
  
 }
 
@@ -81,7 +81,7 @@ async register(data: UserDTO, isAdmin = false)
   
     const user = await this.userService.create(data);
 
-    return this.createToken(user);
+    return this.createToken(user.userId);
 }
 
 }

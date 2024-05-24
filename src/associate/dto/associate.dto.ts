@@ -6,7 +6,7 @@ import {
   Length,
   ValidateNested,
 } from 'class-validator';
-import { AdressDTO } from 'src/adress/dto/adress.dto';
+import { AddressDTO } from 'src/adress/dto/address.dto';
 import { UserDTO } from 'src/user/dto/user.dto';
 
 export class AssociateDto {
@@ -26,8 +26,8 @@ export class AssociateDto {
   user: UserDTO;
 
   @ValidateNested()
-  @Type(() => AdressDTO)
-  address: AdressDTO;
+  @Type(() => AddressDTO)
+  address: AddressDTO;
 
   @IsString()
   @Length(11)
