@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 
-import { AdressController } from "./adress.controller";
-import { AdressService } from "./adress.service";
+import { AddressController } from "./address.controller";
+import { AddressService } from "./address.service";
 import { AuthModule } from "src/auth/auth.module";
 import { PrismaModule } from "src/prisma/prisma.module";
 
@@ -10,9 +10,9 @@ import { PrismaModule } from "src/prisma/prisma.module";
         PrismaModule,
         AuthModule
     ],
-    controllers: [AdressController],
-    providers: [AdressService]
+    controllers: [AddressController],
+    providers: [AddressService]
 })
-export class AdressModule {
+export class AddressModule {
     
 }

@@ -1,26 +1,19 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 
-import { AdressDTO } from "./dto/adress.dto";
+import { AddressDTO } from "./dto/address.dto";
 import { PrismaService } from "src/prisma/prisma.service";
+import { Adress } from "@prisma/client";
 
 @Injectable()
-export class AdressService{
+export class AddressService{
     constructor(
       private prismaService: PrismaService
 ) {}
 
-async create(data: AdressDTO) {
-   const adressId = await this.prismaService.adress.findFirst({
-            where: {
-                 zipCode: data.zipCode,
-                number: data.number,
-            },
-            select: {
-                addressId: true,
-            }
-        })
-     if (adressId) {
-      return { adressId };
+async create(data: AddressDTO) {
+   const { addressId } = await this.verifyExistenceAddress(data.zipCode, data.number);
+     if (addressId) {
+      return { addressId };
     }
   
     return this.prismaService.adress.create({
@@ -43,7 +36,7 @@ async readById(id: string) {
             }
         })
   }
-  async update(id: string, data: AdressDTO) {
+  async update(id: string, data: AddressDTO) {
     await this.exists(id);
     await this.prismaService.adress.update({
       data, 
@@ -71,6 +64,15 @@ async readById(id: string) {
         }))) {
             throw new NotFoundException(`O endereço ${id} não existe.`);
         }
+    }
+
+    verifyExistenceAddress(zipCode: string, number: string): Promise<Adress> {
+        return this.prismaService.adress.findFirst({
+            where: {
+                 zipCode: zipCode,
+                number: number,
+            }
+        })
     }
 
 }
