@@ -96,6 +96,7 @@ model Doctor {
   unit                      Unit                 @relation(fields: [unitId], references: [unitId])
   createdAt                 DateTime             @default(now())
   updatedAt                 DateTime             @updatedAt
+  status                    DoctorStatus         @default(ACTIVE)
 }
 
 model DoctorHasSpecialty {
@@ -112,4 +113,9 @@ model DoctorHasSpecialty {
 enum Role {
   ASSOCIATE
   ADMIN
+}
+
+enum DoctorStatus {
+  ACTIVE
+  INACTIVE
 }

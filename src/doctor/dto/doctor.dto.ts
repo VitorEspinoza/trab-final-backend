@@ -1,11 +1,5 @@
-import { Type } from 'class-transformer';
-import {
-  MaxLength,
-  IsString,
-  ValidateNested,
-  IsArray,
-} from 'class-validator';
-import { UnitDTO } from 'src/unit/dto/unit.dto';
+import { DoctorStatus } from '@prisma/client';
+import { MaxLength, IsString, IsArray, IsEnum } from 'class-validator';
 
 export class DoctorDTO {
   @IsString()
@@ -20,11 +14,13 @@ export class DoctorDTO {
   medicalRegistrationNumber: string;
 
   @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => DoctorDTO)
-  specialty: DoctorDTO[];
+  specialties: { specialtyId: string; isPrincipalSpecialty: boolean }[];
 
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => UnitDTO)
-  unit: UnitDTO[];}
+  @IsString()
+  unitId: string;
+
+  @IsEnum(Object.values(DoctorStatus), {
+    message: 'Valid status required',
+  })
+  status: DoctorStatus;
+}
