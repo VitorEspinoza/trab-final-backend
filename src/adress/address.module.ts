@@ -11,7 +11,8 @@ import { PrismaModule } from "src/prisma/prisma.module";
         AuthModule
     ],
     controllers: [AddressController],
-    providers: [AddressService]
+    providers: [AddressService],
+    exports: [AddressService]
 })
 export class AddressModule {
     
