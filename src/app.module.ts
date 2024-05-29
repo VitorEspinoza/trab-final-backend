@@ -8,6 +8,8 @@ import { UserModule } from './user/user.module';
 import { AddressModule } from './adress/address.module';
 import { AssociateModule } from './associate/associate.module';
 import { DoctorModule } from './doctor/doctor.module';
+import { UnitModule } from './unit/unit.module';
+import { SpecialtyModule } from './specialty/specialty.module';
 
 @Module({
   imports: [ThrottlerModule.forRoot([{
@@ -19,6 +21,8 @@ import { DoctorModule } from './doctor/doctor.module';
     forwardRef(() => AddressModule),
     forwardRef(() => AssociateModule),
     forwardRef(() => DoctorModule),
+    forwardRef(() => UnitModule),
+    forwardRef(() => SpecialtyModule),
   ],
   controllers: [AppController],
   providers: [AppService, {
