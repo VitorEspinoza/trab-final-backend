@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 
 import { AddressDTO } from "./dto/address.dto";
 import { PrismaService } from "src/prisma/prisma.service";
@@ -11,9 +11,9 @@ export class AddressService{
 ) {}
 
 async create(data: AddressDTO) {
-   const { addressId } = await this.verifyExistenceAddress(data.zipCode, data.number);
-     if (addressId) {
-      return { addressId };
+   const existingAdress = await this.verifyExistenceAddress(data.zipCode, data.number);
+     if (existingAdress) {
+      throw new BadRequestException('Esse endereço já existe');
     }
   
     return this.prismaService.adress.create({
