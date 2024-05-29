@@ -1,66 +1,42 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUnitDto } from './dto/create-unit.dto';
+import { AddressService } from 'src/adress/address.service';
 
 @Injectable()
 export class UnitService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(private prismaService: PrismaService, private adressService: AddressService) {}
 
   async create(data: CreateUnitDto) {
-    try {
       const existingUnit = await this.prismaService.unit.findFirst({
         where: {
           name: data.name,
+          displayName: data.displayName,
         },
       });
 
       if (existingUnit) {
-        throw new BadRequestException('Esta unidade já existe no plano');
+        throw new BadRequestException(
+          'Essa unidade já existe, verifique o nome e o nome de exibição',
+        );
       }
 
-      const existingAddress = await this.prismaService.unit.findFirst({
-        where: {
-          address: data.address,
-        },
-      });
+      const existingAddress = await this.adressService.verifyExistenceAddress(data.address.zipCode, data.address.number);
+
 
       if (existingAddress) {
         throw new BadRequestException('Este endereço já existe no plano');
       }
 
-      const existingDisplayName = await this.prismaService.unit.findFirst({
-        where: {
-          displayName: data.displayName,
-        },
-      });
-
-      if (existingDisplayName) {
-        throw new BadRequestException(
-          'Este nome de exibição já está em uso no plano',
-        );
-      }
-
-      const { address, specialties, ...dataWithoutAddressAndSpecialties } =
-        data;
-
-      const formattedSpecialties = specialties.map((specialty) => ({
-        specialtyId: specialty.specialtyId,
-        isPrincipalSpecialty: specialty.isPrincipalSpecialty,
-      }));
-
       return this.prismaService.unit.create({
         data: {
-          ...dataWithoutAddressAndSpecialties,
-          displayName: data.displayName,
-          address: { create: address },
+          ...data,
+          address: { create: data.address },
           specialties: {
-            create: formattedSpecialties,
+            create: data.specialties,
           },
         },
       });
-    } catch (error) {
-      throw new BadRequestException('Falha ao criar a unidade');
-    }
   }
 
   async read() {
@@ -77,34 +53,27 @@ export class UnitService {
     return unit;
   }
 
-  async update(id: string, data: CreateUnitDto) {
-    const unit = await this.prismaService.unit.findUnique({
-      where: { unitId: id },
-    });
-    if (!unit) {
-      throw new BadRequestException('Unidade não encontrada');
-    }
+  // async update(id: string, data: CreateUnitDto) {
+  //   const unit = await this.prismaService.unit.findUnique({
+  //     where: { unitId: id },
+  //   });
+  //   if (!unit) {
+  //     throw new BadRequestException('Unidade não encontrada');
+  //   }
 
-    const { address, specialties, ...dataWithoutAddressAndSpecialties } = data;
+  //   const { address, ...dataWithoutAddressAndSpecialties } = data;
 
-    const formattedSpecialties = specialties.map((specialty) => ({
-      where: { specialtyId: specialty.specialtyId },
-      data: {
-        isPrincipalSpecialty: specialty.isPrincipalSpecialty,
-      },
-    }));
-
-    return this.prismaService.unit.update({
-      where: { unitId: id },
-      data: {
-        ...dataWithoutAddressAndSpecialties,
-        address: { update: address },
-        specialties: {
-          updateMany: formattedSpecialties,
-        },
-      },
-    });
-  }
+  //   return this.prismaService.unit.update({
+  //     where: { unitId: id },
+  //     data: {
+  //       ...dataWithoutAddressAndSpecialties,
+  //       address: { update: address },
+  //       specialties: {
+  //         updateMany: data.specialties,
+  //       },
+  //     },
+  //   });
+  // }
 
   async delete(id: string) {
     const unit = await this.prismaService.unit.findUnique({
