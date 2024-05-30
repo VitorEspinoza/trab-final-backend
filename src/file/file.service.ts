@@ -1,29 +1,36 @@
 import { Injectable } from "@nestjs/common";
 import { v4 as uuidv4 } from 'uuid';
-import { BlobServiceClient } from "@azure/storage-blob";
+import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
 import { Readable } from "stream";
 @Injectable()
 export class FileService {
 
-async uploadUserPhoto(photo: Express.Multer.File, fileName: string = uuidv4().toString() + photo.mimetype.replace('image/', '.')) {
+    private photoContainer = 'user-photos';
+
+    private containerClient: ContainerClient;
+
+    constructor() {
         const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.AZURE_STORAGE_CONNECTION_STRING);
-        const containerClient = blobServiceClient.getContainerClient('user-photos');
-        await containerClient.setAccessPolicy('blob');
-        const blockBlobClient = containerClient.getBlockBlobClient(fileName);
-        const fileStream = Readable.from(photo.buffer);
-        return {
-           uploadResponse: await blockBlobClient.uploadStream(fileStream),
-           fileName: fileName
-        }
+        this.containerClient = blobServiceClient.getContainerClient(this.photoContainer);
     }
 
-     async deleteUserPhoto(photoUrl: string) {
-        const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.AZURE_STORAGE_CONNECTION_STRING);
+    private getBlobNameFromUrl(photoUrl: string) {
         const url = new URL(photoUrl);
-        const containerClient = blobServiceClient.getContainerClient('user-photos');
-        const blobName = url.pathname.split('/').pop();;
-        const blockBlobClient = containerClient.getBlockBlobClient(blobName);
-        return blockBlobClient.delete();   
+        return url.pathname.split('/').pop();
+    }
+
+    async uploadUserPhoto(photo: Express.Multer.File, fileName: string = uuidv4().toString() + photo.mimetype.replace('image/', '.')) {
+            const blockBlobClient = this.containerClient.getBlockBlobClient(fileName);
+            const fileStream = Readable.from(photo.buffer);
+            return {
+                uploadResponse: await blockBlobClient.uploadStream(fileStream),
+                fileName: fileName
+            };
+    }
+
+    async deleteUserPhoto(photoUrl: string) {
+            const blobName = this.getBlobNameFromUrl(photoUrl);
+            const blockBlobClient = this.containerClient.getBlockBlobClient(blobName);
+            return blockBlobClient.delete();   
     }
 }
-
