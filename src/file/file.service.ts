@@ -16,5 +16,14 @@ async uploadUserPhoto(photo: Express.Multer.File, fileName: string = uuidv4().to
            fileName: fileName
         }
     }
+
+     async deleteUserPhoto(photoUrl: string) {
+        const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.AZURE_STORAGE_CONNECTION_STRING);
+        const url = new URL(photoUrl);
+        const containerClient = blobServiceClient.getContainerClient('user-photos');
+        const blobName = url.pathname.split('/').pop();;
+        const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+        return blockBlobClient.delete();   
+    }
 }
 
