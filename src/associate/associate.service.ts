@@ -12,14 +12,14 @@ import { FileService } from 'src/file/file.service';
 export class AssociateService{
     constructor(
       private prismaService: PrismaService,
-      private UserService: UserService,
+      private userService: UserService,
       private authService: AuthService,
       private fileService: FileService
 ) {}
     private azureUrl = 'trabweb1.blob.core.windows.net/user-photos/';
 
     async create(data: CreateAssociateDto, photo: Express.Multer.File) {
-        await this.UserService.verifyEmailExists(data.user.email);
+        await this.userService.verifyEmailExists(data.user.email);
 
         const existingAssociate = await this.prismaService.associate.findFirst({
             where: {
@@ -68,8 +68,6 @@ export class AssociateService{
             photoUploadError,
             associate: savedAssociate
         }
-                
-
     }
 
     generateInsuranceIdentifierString() {
