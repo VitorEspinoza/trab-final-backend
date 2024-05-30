@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseInterceptors, UploadedFile, ParseFilePipe, FileTypeValidator, MaxFileSizeValidator, UsePipes, ValidationPipe, InternalServerErrorException } from "@nestjs/common";
+import { Controller, Post, Body, UseInterceptors, UploadedFile, ParseFilePipe, FileTypeValidator, MaxFileSizeValidator, UsePipes, ValidationPipe } from "@nestjs/common";
 import { AssociateService } from "./associate.service";
 
 import { CreateAssociateDto } from "./dto/create-associate.dto";
