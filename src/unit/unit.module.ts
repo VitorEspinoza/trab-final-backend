@@ -3,7 +3,7 @@ import { PrismaModule } from 'src/prisma/prisma.module';
 import { AuthModule } from 'src/auth/auth.module';
 import { UnitService } from './unit.service';
 import { UnitController } from './unit.controller';
-import { AddressModule } from 'src/adress/address.module';
+import { AddressModule } from 'src/Address/address.module';
 
 @Module({
   imports: [PrismaModule, AuthModule, AddressModule],

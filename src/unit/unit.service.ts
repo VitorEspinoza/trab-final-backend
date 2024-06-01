@@ -1,11 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUnitDto } from './dto/create-unit.dto';
-import { AddressService } from 'src/adress/address.service';
+import { AddressService } from 'src/Address/address.service';
 
 @Injectable()
 export class UnitService {
-  constructor(private prismaService: PrismaService, private adressService: AddressService) {}
+  constructor(private prismaService: PrismaService, private addressService: AddressService) {}
 
   async create(data: CreateUnitDto) {
       const existingUnit = await this.prismaService.unit.findFirst({
@@ -21,7 +21,7 @@ export class UnitService {
         );
       }
 
-      const existingAddress = await this.adressService.verifyExistenceAddress(data.address.zipCode, data.address.number);
+      const existingAddress = await this.addressService.verifyExistenceAddress(data.address.zipCode, data.address.number);
 
 
       if (existingAddress) {

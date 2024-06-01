@@ -1,6 +1,6 @@
 import { Type } from "class-transformer";
 import { IsArray, IsString, MaxLength, ValidateNested } from "class-validator";
-import { AddressDTO } from "src/adress/dto/address.dto";
+import { AddressDTO } from "src/Address/dto/address.dto";
 import { SpecialtyDTO } from "src/specialty/dto/specialty.dto";
 
 export class UnitDTO{
@@ -14,7 +14,7 @@ export class UnitDTO{
 
     @ValidateNested()
     @Type(() => AddressDTO)
-    adress: AddressDTO;
+    address: AddressDTO;
 
     @IsArray()
     @ValidateNested({ each: true})

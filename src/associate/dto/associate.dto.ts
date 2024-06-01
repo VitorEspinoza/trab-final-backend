@@ -6,7 +6,7 @@ import {
   Length,
   ValidateNested,
 } from 'class-validator';
-import { AddressDTO } from 'src/adress/dto/address.dto';
+import { AddressDTO } from 'src/Address/dto/address.dto';
 import { UserDTO } from 'src/user/dto/user.dto';
 
 export class AssociateDto {
