@@ -5,13 +5,11 @@ import {
   Get,
   Param,
   Put,
-  Patch,
   UseGuards,
+  Delete,
 } from '@nestjs/common';
 import { DoctorService } from './doctor.service';
 import { DoctorDTO } from './dto/doctor.dto';
-import { PatchDoctorDTO } from './dto/patch-doctor.dto';
-import { RemoveDoctorSpecialtyDTO } from './dto/remove-doctor-specialty.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
 
 @UseGuards(AuthGuard)
@@ -39,16 +37,8 @@ export class DoctorController {
     return this.doctorService.update(id, body);
   }
 
-  @Patch(':id')
-  async patch(@Body() body: PatchDoctorDTO, @Param('id') id: string) {
-    return this.doctorService.patch(id, body);
-  }
-
-  @Patch('remove-specialty/:id')
-  async removeDoctorSpecialty(
-    @Body() body: RemoveDoctorSpecialtyDTO,
-    @Param('id') id: string,
-  ) {
-    return this.doctorService.removeDoctorSpecialty(id, body);
+  @Delete(':id')
+  async delete(@Param('id') id: string) {
+    return this.doctorService.delete(id);
   }
 }

@@ -6,7 +6,6 @@ import {
 
 import { PrismaService } from 'src/prisma/prisma.service';
 import { DoctorDTO } from './dto/doctor.dto';
-import { RemoveDoctorSpecialtyDTO } from './dto/remove-doctor-specialty.dto';
 
 @Injectable()
 export class DoctorService {
@@ -24,12 +23,6 @@ export class DoctorService {
     }
 
     const { unitId, ...dataWithoutUnitId } = data;
-
-    const specialties = data.specialties.map((specialty) => ({
-      specialtyId: specialty.specialtyId,
-      isPrincipalSpecialty: specialty.isPrincipalSpecialty,
-    }));
-
     return this.prismaService.doctor.create({
       data: {
         ...dataWithoutUnitId,
@@ -39,11 +32,12 @@ export class DoctorService {
           },
         },
         specialties: {
-          create: specialties,
+          create: data.specialties,
         },
       },
     });
   }
+
   async read() {
     return this.prismaService.doctor.findMany({
       include: {
@@ -76,12 +70,13 @@ export class DoctorService {
     await this.exists(id);
     const { unitId, ...dataWithoutUnitId } = data;
 
-    const specialties = data.specialties.map((specialty) => ({
-      specialtyId: specialty.specialtyId,
-      isPrincipalSpecialty: specialty.isPrincipalSpecialty,
-    }));
+    const deletePromise = this.prismaService.doctorHasSpecialty.deleteMany({
+      where: {
+        doctorId: id,
+      },
+    });
 
-    await this.prismaService.doctor.update({
+    const updatePromise = this.prismaService.doctor.update({
       where: {
         doctorId: id,
       },
@@ -93,30 +88,48 @@ export class DoctorService {
           },
         },
         specialties: {
-          create: specialties,
+          create: data.specialties,
         },
       },
     });
-    return this.exists(id);
+
+    const [deleteResponse, updateResponse] =
+      await this.prismaService.$transaction([deletePromise, updatePromise]);
+
+    console.log(deleteResponse);
+
+    if (deleteResponse.count === 0) {
+      throw new BadRequestException('Não foi possível fazer a alteração');
+    }
+
+    return updateResponse;
   }
 
-  async patch(id: string, data) {
+  async delete(id: string) {
     await this.exists(id);
-    return this.prismaService.doctor.update({
+    const deleteDoctorSpecialtiesPromise =
+      this.prismaService.doctorHasSpecialty.deleteMany({
+        where: {
+          doctorId: id,
+        },
+      });
+
+    const deleteDoctorPromise = this.prismaService.doctor.delete({
       where: {
         doctorId: id,
       },
-      data,
     });
-  }
 
-  async removeDoctorSpecialty(id: string, data: RemoveDoctorSpecialtyDTO) {
-    await this.exists(id);
-    return this.prismaService.doctorHasSpecialty.delete({
-      where: {
-        doctorHasSpecialtyId: data.doctorHasSpecialtyId,
-      },
-    });
+    const [deleteDoctorSpecialtiesResponse, deleteDoctorResponse] =
+      await this.prismaService.$transaction([
+        deleteDoctorSpecialtiesPromise,
+        deleteDoctorPromise,
+      ]);
+
+    if (deleteDoctorSpecialtiesResponse.count === 0) {
+      throw new BadRequestException('Não foi possível fazer a alteração');
+    }
+    return deleteDoctorResponse;
   }
 
   async exists(id: string) {

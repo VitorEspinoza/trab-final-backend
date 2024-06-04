@@ -1,5 +1,4 @@
-import { DoctorStatus } from '@prisma/client';
-import { MaxLength, IsString, IsArray, IsEnum } from 'class-validator';
+import { MaxLength, IsString, IsArray } from 'class-validator';
 
 export class DoctorDTO {
   @IsString()
@@ -18,9 +17,4 @@ export class DoctorDTO {
 
   @IsString()
   unitId: string;
-
-  @IsEnum(Object.values(DoctorStatus), {
-    message: 'Valid status required',
-  })
-  status: DoctorStatus;
 }
