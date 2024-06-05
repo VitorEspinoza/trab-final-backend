@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateUnitDto } from './dto/create-unit.dto';
 import { AddressService } from 'src/Address/address.service';
+import { UnitDTO } from './dto/unit.dto';
 
 @Injectable()
 export class UnitService {
@@ -10,7 +10,7 @@ export class UnitService {
     private addressService: AddressService,
   ) {}
 
-  async create(data: CreateUnitDto) {
+  async create(data: UnitDTO) {
     const existingUnit = await this.prismaService.unit.findFirst({
       where: {
         name: data.name,
@@ -111,7 +111,7 @@ export class UnitService {
   };
   }
 
-  async update(id: string, data: CreateUnitDto) {
+  async update(id: string, data: UnitDTO) {
     const unit = await this.prismaService.unit.findUnique({
       where: { unitId: id },
       include: { address: true },
