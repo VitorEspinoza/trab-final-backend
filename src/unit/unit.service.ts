@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AddressService } from 'src/Address/address.service';
 import { UnitDTO } from './dto/unit.dto';
@@ -9,6 +9,10 @@ export class UnitService {
     private prismaService: PrismaService,
     private addressService: AddressService,
   ) {}
+
+  unitNotExistError() {
+    throw new NotFoundException('A unidade não existe');
+  }
 
   async create(data: UnitDTO) {
     const existingUnit = await this.prismaService.unit.findFirst({
@@ -98,7 +102,7 @@ export class UnitService {
     });
     
     if (!unit) {
-      throw new BadRequestException('Unidade não encontrada');
+       this.unitNotExistError();
     }
     
     return {
@@ -118,7 +122,7 @@ export class UnitService {
     });
 
     if (!unit) {
-      throw new BadRequestException('Unidade não encontrada');
+      this.unitNotExistError();
     }
 
     const addressChanged = unit.address.zipCode !== data.address.zipCode ||
@@ -167,12 +171,38 @@ export class UnitService {
   }
 
   async delete(id: string) {
-    const unit = await this.prismaService.unit.findUnique({
-      where: { unitId: id },
-    });
-    if (!unit) {
-      throw new BadRequestException('Unidade não encontrada');
+    const unitNotExist = !(await this.prismaService.unit.count({
+        where: {
+          unitId: id,
+        },
+      }))
+
+    if (unitNotExist) {
+      this.unitNotExistError();
     }
-    return this.prismaService.unit.delete({ where: { unitId: id } });
+
+    const deleteUnitSpecialtiesPromise =
+      this.prismaService.unitHasSpecialty.deleteMany({
+        where: {
+          unitId: id,
+        },
+      });
+
+    const deleteUnitPromise = this.prismaService.unit.delete({
+      where: {
+        unitId: id,
+      },
+    });
+
+    const [deleteUnitSpecialtiesResponse, deleteUnitResponse] =
+      await this.prismaService.$transaction([
+        deleteUnitSpecialtiesPromise,
+        deleteUnitPromise,
+      ]);
+
+    if (deleteUnitSpecialtiesResponse.count === 0) {
+      throw new BadRequestException('Não foi possível fazer a alteração');
+    }
+    return deleteUnitResponse;
   }
 }
