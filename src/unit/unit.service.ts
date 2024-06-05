@@ -96,7 +96,7 @@ export class UnitService {
       }
     },
     });
-
+    
     if (!unit) {
       throw new BadRequestException('Unidade não encontrada');
     }
@@ -111,7 +111,38 @@ export class UnitService {
   };
   }
 
-   async update(id: string, data: CreateUnitDto) {
+  async update(id: string, data: CreateUnitDto) {
+    const unit = await this.prismaService.unit.findUnique({
+      where: { unitId: id },
+      include: { address: true },
+    });
+
+    if (!unit) {
+      throw new BadRequestException('Unidade não encontrada');
+    }
+
+    const addressChanged = unit.address.zipCode !== data.address.zipCode ||
+      unit.address.number !== data.address.number;
+
+    const updateData: any = { ...data, specialties: { create: data.specialties } };
+
+
+    if (addressChanged) {
+      const existingAddress = await this.addressService.verifyExistenceAddress(
+        data.address.zipCode,
+        data.address.number,
+      );
+  
+    updateData.address = { create: data.address };
+
+      if (existingAddress) {
+        throw new BadRequestException('Este endereço já existe no plano');
+      }
+    }
+
+    if(!addressChanged)
+      delete updateData.address;
+
     const deletePromise = this.prismaService.unitHasSpecialty.deleteMany({
       where: {
         unitId: id,
@@ -122,13 +153,7 @@ export class UnitService {
       where: {
         unitId: id,
       },
-      data: {
-        ...data,
-        address: { create: data.address },
-        specialties: {
-          create: data.specialties,
-        },
-      },
+      data: updateData,
     });
 
     const [deleteResponse, updateResponse] =
