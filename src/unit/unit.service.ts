@@ -45,20 +45,73 @@ export class UnitService {
   }
 
   async read() {
-    return this.prismaService.unit.findMany();
+    const units = await this.prismaService.unit.findMany({
+      select: {
+        unitId: true,
+        name: true,
+        displayName: true,
+        address: true,
+        specialties: {
+          select: {
+            isPrincipalSpecialty: true,
+            specialtyDetail: {
+              select: {
+                specialtyId: true,
+                name: true
+              }
+            }
+          }
+        }
+      },
+    });
+
+    return units.map(unit => ({
+    ...unit,
+    specialties: unit.specialties.map(specialty => ({
+      specialtyId: specialty.specialtyDetail.specialtyId,
+      isPrincipalSpecialty: specialty.isPrincipalSpecialty,
+      name: specialty.specialtyDetail.name
+    }))
+  }));
   }
 
   async readById(id: string) {
     const unit = await this.prismaService.unit.findUnique({
       where: { unitId: id },
+      select: {
+      unitId: true,
+      name: true,
+      displayName: true,
+      address: true,
+      specialties: {
+        select: {
+          isPrincipalSpecialty: true,
+          specialtyDetail: {
+            select: {
+              specialtyId: true,
+              name: true
+            }
+          }
+        }
+      }
+    },
     });
+
     if (!unit) {
       throw new BadRequestException('Unidade não encontrada');
     }
-    return unit;
+    
+    return {
+    ...unit,
+    specialties: unit.specialties.map(specialty => ({
+      isPrincipalSpecialty: specialty.isPrincipalSpecialty,
+      specialtyId: specialty.specialtyDetail.specialtyId,
+      name: specialty.specialtyDetail.name
+    }))
+  };
   }
 
-  async update(id: string, data: CreateUnitDto) {
+   async update(id: string, data: CreateUnitDto) {
     const deletePromise = this.prismaService.unitHasSpecialty.deleteMany({
       where: {
         unitId: id,
