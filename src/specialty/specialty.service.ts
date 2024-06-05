@@ -24,7 +24,7 @@ export class SpecialtyService {
     }
 
     async delete(id: string) {
-        this.exists(id);
+        await this.exists(id);
 
         return await this.prismaService.specialty.delete({
             where: {
@@ -39,7 +39,7 @@ export class SpecialtyService {
     }
 
     async readById(id: string) {
-        this.exists(id);
+       await this.exists(id);
 
         return this.prismaService.specialty.findUnique({
             where: {
@@ -49,7 +49,7 @@ export class SpecialtyService {
     }
 
     async update(id: string, data: SpecialtyDTO) {
-        this.exists(id);
+       await this.exists(id);
 
         return this.prismaService.specialty.update({
             data,
@@ -65,9 +65,9 @@ export class SpecialtyService {
                 specialtyId: id
             }
         }); 
-
+        
         if(!hasSpecialty) {
-            return new NotFoundException(`A especialidade com o ${id} não existe.`);
+            throw new NotFoundException(`A especialidade com o id ${id} não existe.`);
         }
     }
 }
