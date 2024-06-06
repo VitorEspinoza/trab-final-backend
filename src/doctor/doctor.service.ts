@@ -6,10 +6,11 @@ import {
 
 import { PrismaService } from 'src/prisma/prisma.service';
 import { DoctorDTO } from './dto/doctor.dto';
+import { UnitService } from 'src/unit/unit.service';
 
 @Injectable()
 export class DoctorService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(private prismaService: PrismaService, private unitService: UnitService ) {}
 
   async create(data: DoctorDTO) {
     const existingDoctor = await this.prismaService.doctor.findFirst({
@@ -21,6 +22,8 @@ export class DoctorService {
     if (existingDoctor) {
       throw new BadRequestException('Este doutor já está vinculado no plano');
     }
+
+    await this.unitService.verifyUnitExistence(data.unitId);
 
     const { unitId, ...dataWithoutUnitId } = data;
     return this.prismaService.doctor.create({
@@ -68,6 +71,7 @@ export class DoctorService {
 
   async update(id: string, data: DoctorDTO) {
     await this.exists(id);
+    await this.unitService.verifyUnitExistence(data.unitId);
     const { unitId, ...dataWithoutUnitId } = data;
 
     const deletePromise = this.prismaService.doctorHasSpecialty.deleteMany({
