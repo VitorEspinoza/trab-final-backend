@@ -28,32 +28,68 @@ export class DoctorService {
     return this.createDoctor(data);
   }
 
-  async read() {
-    return this.prismaService.doctor.findMany({
-      include: {
-        specialties: {
-          include: {
-            specialties: true,
-          },
-        },
+async read() {
+  const doctors = await this.prismaService.doctor.findMany({
+    select: {
+      doctorId: true,
+      document: true,
+      medicalRegistrationNumber: true,
+      name: true,
+      unit: {
+        select: {
+          address: true,
+          displayName: true,
+        }
       },
-    });
-  }
+      specialties: {
+        select: {
+          isPrincipalSpecialty: true,
+          specialtyDetail: {
+            select: {
+              specialtyId: true,
+              name: true
+            }
+          }
+        }
+      }
+    },
+  });
+
+  return doctors.map(this.mapDoctor);
+}
 
   async readById(id: string) {
     await this.exists(id);
-    return this.prismaService.doctor.findUnique({
+    const doctor = await this.prismaService.doctor.findUnique({
       where: {
         doctorId: id,
       },
-      include: {
-        specialties: {
-          include: {
-            specialties: true,
-          },
+      select: {
+        doctorId: true,
+        document: true,
+        medicalRegistrationNumber: true,
+        name: true,
+        unit: {
+          select: {
+            address: true,
+            displayName: true,
+          }
         },
+        specialties: {
+        select: {
+          isPrincipalSpecialty: true,
+          specialtyDetail: {
+            select: {
+              specialtyId: true,
+              name: true
+              }
+            }
+          }
+        }
       },
     });
+
+    return this.mapDoctor(doctor);
   }
 
   async update(id: string, data: DoctorDTO) {
@@ -129,30 +165,45 @@ export class DoctorService {
     });
   }
 
-private deleteDoctor(doctorId: string) {
-  return this.prismaService.doctor.delete({
-    where: {
-      doctorId: doctorId,
-    },
-  });
-}
+  private deleteDoctor(doctorId: string) {
+    return this.prismaService.doctor.delete({
+      where: {
+        doctorId: doctorId,
+      },
+    });
+  }
 
 
-private async createDoctor(data: DoctorDTO) {
-  const { unitId, ...dataWithoutUnitId } = data;
+  private async createDoctor(data: DoctorDTO) {
+    const { unitId, ...dataWithoutUnitId } = data;
 
-  return this.prismaService.doctor.create({
-    data: {
-      ...dataWithoutUnitId,
-      unit: {
-        connect: {
-          unitId: unitId,
+    return this.prismaService.doctor.create({
+      data: {
+        ...dataWithoutUnitId,
+        unit: {
+          connect: {
+            unitId: unitId,
+          },
+        },
+        specialties: {
+          create: data.specialties,
         },
       },
-      specialties: {
-        create: data.specialties,
-      },
-    },
-  });
-}
+    });
+  }
+
+  private mapDoctorSpecialty = (specialty) => {
+    return {
+      isPrincipalSpecialty: specialty.isPrincipalSpecialty,
+      specialtyId: specialty.specialtyDetail.specialtyId,
+      name: specialty.specialtyDetail.name
+    };
+  }
+
+  private mapDoctor = (doctor) => {
+    return {
+      ...doctor,
+      specialties: doctor.specialties.map(this.mapDoctorSpecialty)
+    };
+  }
 }
