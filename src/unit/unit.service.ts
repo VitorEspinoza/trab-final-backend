@@ -202,7 +202,7 @@ export class UnitService {
     }
   }
 
-  async verifyUnitExistence(id: string) {
+  async validateUnitExistence(id: string) {
     const notExist = !(await this.prismaService.unit.count({
       where: {
         unitId: id,
@@ -212,15 +212,20 @@ export class UnitService {
       this.unitNotExistError();
   }
 
+  private mapSpecialty(specialty) {
+    return {
+      isPrincipalSpecialty: specialty.isPrincipalSpecialty,
+      specialtyId: specialty.specialtyDetail.specialtyId,
+      name: specialty.specialtyDetail.name
+    };
+  }
+
   private mapUnit(unit) {
     return {
       ...unit,
-      specialties: unit.specialties.map(specialty => ({
-        isPrincipalSpecialty: specialty.isPrincipalSpecialty,
-        specialtyId: specialty.specialtyDetail.specialtyId,
-        name: specialty.specialtyDetail.name
-      }))
+      specialties: unit.specialties.map(this.mapSpecialty)
     };
   }
+
   
 }

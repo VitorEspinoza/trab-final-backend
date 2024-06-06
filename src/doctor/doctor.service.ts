@@ -23,7 +23,7 @@ export class DoctorService {
       throw new BadRequestException('Este doutor já está vinculado no plano');
     }
 
-    await this.unitService.verifyUnitExistence(data.unitId);
+    await this.unitService.validateUnitExistence(data.unitId);
     
     return this.createDoctor(data);
   }
@@ -58,7 +58,7 @@ export class DoctorService {
 
   async update(id: string, data: DoctorDTO) {
   await this.exists(id);
-  await this.unitService.verifyUnitExistence(data.unitId);
+  await this.unitService.validateUnitExistence(data.unitId);
 
   try {
     await this.deleteDoctorSpecialties(id);
