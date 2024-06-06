@@ -10,5 +10,6 @@ import { UserService } from 'src/user/user.service';
   imports: [PrismaModule, AuthModule, AddressModule],
   controllers: [UnitController],
   providers: [UnitService, UserService],
+  exports: [UnitService]
 })
 export class UnitModule {}

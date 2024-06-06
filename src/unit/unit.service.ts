@@ -215,6 +215,14 @@ export class UnitService {
     }
   }
 
-  
+  async verifyUnitExistence(id: string) {
+    const notExist = !(await this.prismaService.unit.count({
+      where: {
+        unitId: id,
+      },
+    })); 
+    if(notExist)
+      this.unitNotExistError();
+  }
   
 }
