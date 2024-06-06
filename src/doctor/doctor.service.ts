@@ -101,7 +101,7 @@ export class DoctorService {
   }
 
 
-  private deleteDoctorSpecialties = (doctorId: string) => {
+  private deleteDoctorSpecialties(doctorId: string) {
     return this.prismaService.doctorHasSpecialty.deleteMany({
     where: {
       doctorId: doctorId,
@@ -109,7 +109,7 @@ export class DoctorService {
   });
 }
 
-  private updateDoctor = (doctorId: string, data: DoctorDTO) => {
+  private updateDoctor(doctorId: string, data: DoctorDTO){
     const { unitId, ...dataWithoutUnitId } = data;
       return this.prismaService.doctor.update({
       where: {
@@ -129,7 +129,7 @@ export class DoctorService {
     });
   }
 
-private deleteDoctor = (doctorId: string) => {
+private deleteDoctor(doctorId: string) {
   return this.prismaService.doctor.delete({
     where: {
       doctorId: doctorId,

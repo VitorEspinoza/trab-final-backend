@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AddressService } from 'src/Address/address.service';
 import { UnitDTO } from './dto/unit.dto';
+import { Unit } from '@prisma/client';
 
 @Injectable()
 export class UnitService {
@@ -160,42 +161,21 @@ export class UnitService {
   async delete(id: string) {
     const unit = await this.prismaService.unit.findUnique({
       where: { unitId: id },
-      include: { address: true },
     });
 
     if (!unit) {
       this.unitNotExistError();
     }
 
-
-    const deleteUnitSpecialtiesPromise =
-      this.prismaService.unitHasSpecialty.deleteMany({
-        where: {
-          unitId: id,
-        },
-      });
-
-    const deleteUnitPromise = this.prismaService.unit.delete({
-      where: {
-        unitId: id,
-      },
-    });
-
-    const deleteAdressPromise = this.prismaService.address.delete({
-      where: {
-        addressId: unit.address.addressId,
-      },
-    });
-
     try {
-      const [deleteUnitSpecialtiesResponse, deleteUnitResponse, deleteAddressResponse] =
+      const transaction =
         await this.prismaService.$transaction([
-          deleteUnitSpecialtiesPromise,
-          deleteUnitPromise,
-          deleteAdressPromise
+          this.deleteUnitSpecialties(id),
+          this.deleteUnit(id),
+          this.deleteAdress(unit)
         ]);
 
-      return deleteUnitResponse;
+      return transaction[1];
     }
     catch (e) {
       throw new BadRequestException('Não foi possível deletar a unidade');
@@ -212,7 +192,7 @@ export class UnitService {
       this.unitNotExistError();
   }
 
-  private mapSpecialty(specialty) {
+  private mapSpecialty = (specialty) => {
     return {
       isPrincipalSpecialty: specialty.isPrincipalSpecialty,
       specialtyId: specialty.specialtyDetail.specialtyId,
@@ -220,7 +200,7 @@ export class UnitService {
     };
   }
 
-  private mapUnit(unit) {
+  private mapUnit = (unit) => {
     return {
       ...unit,
       specialties: unit.specialties.map(this.mapSpecialty)
@@ -228,4 +208,28 @@ export class UnitService {
   }
 
   
+  private deleteUnitSpecialties(unitId: string){
+    return this.prismaService.unitHasSpecialty.deleteMany({
+      where: {
+        unitId
+      },
+    });
+  }
+
+  private deleteAdress(unit: Unit){
+      return this.prismaService.address.deleteMany({
+        where: {
+          addressId: unit.addressId
+        },
+      });
+    }
+
+
+  private deleteUnit(unitId: string){
+    return this.prismaService.unit.delete({
+      where: {
+        unitId
+      },
+    });
+  }
 }
