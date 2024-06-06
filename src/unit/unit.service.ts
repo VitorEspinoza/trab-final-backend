@@ -171,15 +171,15 @@ export class UnitService {
   }
 
   async delete(id: string) {
-    const unitNotExist = !(await this.prismaService.unit.count({
-        where: {
-          unitId: id,
-        },
-      }))
+    const unit = await this.prismaService.unit.findUnique({
+      where: { unitId: id },
+      include: { address: true },
+    });
 
-    if (unitNotExist) {
+    if (!unit) {
       this.unitNotExistError();
     }
+
 
     const deleteUnitSpecialtiesPromise =
       this.prismaService.unitHasSpecialty.deleteMany({
@@ -194,15 +194,24 @@ export class UnitService {
       },
     });
 
-    const [deleteUnitSpecialtiesResponse, deleteUnitResponse] =
-      await this.prismaService.$transaction([
-        deleteUnitSpecialtiesPromise,
-        deleteUnitPromise,
-      ]);
+    const deleteAdressPromise = this.prismaService.address.delete({
+      where: {
+        addressId: unit.address.addressId,
+      },
+    });
 
-    if (deleteUnitSpecialtiesResponse.count === 0) {
-      throw new BadRequestException('Não foi possível fazer a alteração');
+    try {
+      const [deleteUnitSpecialtiesResponse, deleteUnitResponse, deleteAddressResponse] =
+        await this.prismaService.$transaction([
+          deleteUnitSpecialtiesPromise,
+          deleteUnitPromise,
+          deleteAdressPromise
+        ]);
+
+      return deleteUnitResponse;
     }
-    return deleteUnitResponse;
+    catch (e) {
+      throw new BadRequestException('Não foi possível deletar a unidade');
+    }
   }
 }
