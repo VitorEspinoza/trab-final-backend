@@ -11,7 +11,7 @@ export class UnitService {
   ) {}
 
   unitNotExistError() {
-    throw new NotFoundException('A unidade não existe');
+    throw new NotFoundException('A unidade informada não existe');
   }
 
   async create(data: UnitDTO) {
@@ -214,4 +214,7 @@ export class UnitService {
       throw new BadRequestException('Não foi possível deletar a unidade');
     }
   }
+
+  
+  
 }
