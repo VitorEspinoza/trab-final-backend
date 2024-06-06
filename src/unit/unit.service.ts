@@ -69,14 +69,7 @@ export class UnitService {
       },
     });
 
-    return units.map(unit => ({
-    ...unit,
-    specialties: unit.specialties.map(specialty => ({
-      specialtyId: specialty.specialtyDetail.specialtyId,
-      isPrincipalSpecialty: specialty.isPrincipalSpecialty,
-      name: specialty.specialtyDetail.name
-    }))
-  }));
+     return units.map(this.mapUnit);
   }
 
   async readById(id: string) {
@@ -105,14 +98,8 @@ export class UnitService {
        this.unitNotExistError();
     }
     
-    return {
-    ...unit,
-    specialties: unit.specialties.map(specialty => ({
-      isPrincipalSpecialty: specialty.isPrincipalSpecialty,
-      specialtyId: specialty.specialtyDetail.specialtyId,
-      name: specialty.specialtyDetail.name
-    }))
-  };
+    return this.mapUnit(unit);
+
   }
 
   async update(id: string, data: UnitDTO) {
@@ -223,6 +210,17 @@ export class UnitService {
     })); 
     if(notExist)
       this.unitNotExistError();
+  }
+
+  private mapUnit(unit) {
+    return {
+      ...unit,
+      specialties: unit.specialties.map(specialty => ({
+        isPrincipalSpecialty: specialty.isPrincipalSpecialty,
+        specialtyId: specialty.specialtyDetail.specialtyId,
+        name: specialty.specialtyDetail.name
+      }))
+    };
   }
   
 }
