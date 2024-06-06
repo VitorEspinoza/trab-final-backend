@@ -53,7 +53,6 @@ export class UnitService {
     const units = await this.prismaService.unit.findMany({
       select: {
         unitId: true,
-        name: true,
         displayName: true,
         address: true,
         specialties: {
@@ -78,7 +77,6 @@ export class UnitService {
       where: { unitId: id },
       select: {
       unitId: true,
-      name: true,
       displayName: true,
       address: true,
       specialties: {
