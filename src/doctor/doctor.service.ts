@@ -61,22 +61,27 @@ export class DoctorService {
   await this.unitService.validateUnitExistence(data.unitId);
 
   try {
-    await this.deleteDoctorSpecialties(id);
-    const updateResponse = await this.updateDoctor(id, data, data.specialties);
-    return updateResponse;
+    const transaction = await this.prismaService.$transaction([
+      this.deleteDoctorSpecialties(id),
+      this.updateDoctor(id, data)
+    ]);
+
+    return transaction[1];
   } catch(e) {
-      throw new BadRequestException('Não foi possível fazer a alteração', e);
+    throw new BadRequestException('Não foi possível fazer a alteração', e);
   }
 }
-
 
   async delete(id: string) {
    await this.exists(id);
 
   try {
-    await this.deleteDoctorSpecialties(id);
-    const deleteDoctorResponse = await this.deleteDoctor(id);
-    return deleteDoctorResponse;
+    const transaction = await this.prismaService.$transaction([
+      this.deleteDoctorSpecialties(id),
+      this.deleteDoctor(id)
+    ]);
+
+    return transaction[1];
   } catch(e) {
       throw new BadRequestException('Não foi possível fazer a exclusão', e);
   }
@@ -96,35 +101,35 @@ export class DoctorService {
   }
 
 
-  private async deleteDoctorSpecialties(doctorId: string) {
-  return this.prismaService.doctorHasSpecialty.deleteMany({
+  private deleteDoctorSpecialties = (doctorId: string) => {
+    return this.prismaService.doctorHasSpecialty.deleteMany({
     where: {
       doctorId: doctorId,
     },
   });
 }
 
-private async updateDoctor(doctorId: string, data: DoctorDTO, specialties: any) {
-  const { unitId, ...dataWithoutUnitId } = data;
-  return this.prismaService.doctor.update({
-    where: {
-      doctorId: doctorId,
-    },
-    data: {
-      ...dataWithoutUnitId,
-      unit: {
-        connect: {
-          unitId: unitId,
+  private updateDoctor = (doctorId: string, data: DoctorDTO) => {
+    const { unitId, ...dataWithoutUnitId } = data;
+      return this.prismaService.doctor.update({
+      where: {
+        doctorId: doctorId,
+      },
+      data: {
+        ...dataWithoutUnitId,
+        unit: {
+          connect: {
+            unitId: unitId,
+          },
+        },
+        specialties: {
+          create: data.specialties,
         },
       },
-      specialties: {
-        create: specialties,
-      },
-    },
-  });
-}
+    });
+  }
 
-private async deleteDoctor(doctorId: string) {
+private deleteDoctor = (doctorId: string) => {
   return this.prismaService.doctor.delete({
     where: {
       doctorId: doctorId,
