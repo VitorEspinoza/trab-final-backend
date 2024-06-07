@@ -66,9 +66,35 @@ export class AssociateService {
     return result;
   }
 
-  async read() {
-    return this.prismaService.associate.findMany();
-  }
+async read() {
+  const associates = await this.prismaService.associate.findMany({
+    select: {
+      associateId: true,
+      phone: true,
+      birthAt: true,
+      document: true,
+      healthInsuranceIdentifier: true,
+      address: {
+        select: {
+          street: true,
+          number: true,
+          neighborhood: true,
+          city: true,
+          state: true,
+          zipCode: true,
+        }
+      },
+      user: {
+        select: {
+          email: true,
+          name: true,
+        }
+      },
+    },
+  });
+
+  return associates;
+}
 
   async readById(id: string) {
     await this.exists(id);
