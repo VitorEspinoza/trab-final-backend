@@ -30,13 +30,23 @@ export class UserService {
 
     return this.prismaService.user.findUnique({
             where: {
-                userId: id,
-            }
+                userId: id,            
+            },
+            select: {
+                    userId: true,
+                    name: true,
+                    email: true,
+                    role: true,
+                    associate: {
+                      select: {
+                        associateId: true
+                      }
+                    },
+                }
         })
   }
 
   async update(id: string, data: UserDTO) {
-    delete data.role;
     await this.exists(id);
     await this.prismaService.user.update({
       where: {
