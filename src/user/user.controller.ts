@@ -4,9 +4,9 @@ import { RoleGuard } from "src/guards/role.guard";
 import { Roles } from "src/decorators/role.decorator";
 import { Role } from "src/enums/role.enum";
 import { UserOwnsRouteGuard } from "src/guards/user-owns-route.guard";
-import { Body, Controller, Delete, Get, Param, Put, UseGuards } from "@nestjs/common";
-import { UserDTO } from "./dto/user.dto";
+import { Controller, Delete, Get, Param, UseGuards } from "@nestjs/common";
 import { UserService } from "./user.service";
+import { UserOwnsRouteOptions } from "src/decorators/user-owns-route-options.decorator";
 
 
 
@@ -32,6 +32,14 @@ export class UserController {
     async delete(@Param('id') id: string) {
         return this.userService.delete(id);
     }
+
+    @UserOwnsRouteOptions({ allowAdmin: true})
+    @Roles(Role.ADMIN, Role.ASSOCIATE)
+    @UseGuards(AuthGuard, RoleGuard, UserOwnsRouteGuard)
+    @Delete(':id/photo')
+    async deletePhoto(@Param('id') id: string) {
+        return this.userService.deletePhoto(id);
+  }
     
     
 }

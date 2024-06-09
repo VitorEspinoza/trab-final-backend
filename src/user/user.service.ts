@@ -2,10 +2,12 @@ import { BadRequestException, Injectable, NotFoundException } from "@nestjs/comm
 import { UserDTO } from "./dto/user.dto";
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from "src/prisma/prisma.service";
+import { FileService } from "src/file/file.service";
 @Injectable()
 export class UserService {
     constructor(
     private prismaService: PrismaService,
+    private fileService: FileService
   ) {}
      
   
@@ -61,6 +63,25 @@ export class UserService {
     await this.exists(id);
     return this.prismaService.user.delete({
       where: { userId: id },
+    });
+  }
+
+   async deletePhoto(id: string) {
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        userId: id
+      }
+    });
+
+    await this.fileService.deleteUserPhoto(user.photo_url);
+
+    return this.prismaService.user.update({
+      where: {
+        userId: id,
+      },
+      data: {
+        photo_url: null,
+      },
     });
   }
 
