@@ -1,4 +1,3 @@
-import { UserService } from 'src/user/user.service';
 import {
   BadRequestException,
   Injectable,
@@ -8,18 +7,24 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateAssociateDto } from './dto/create-associate.dto';
 import { AuthService } from 'src/auth/auth.service';
-import { Role } from 'src/enums/role.enum';
-
+import * as bcrypt from 'bcrypt';
+import { UpdateAssociateDTO } from './dto/update-associate.dto';
+import { UserService } from 'src/user/user.service';
+import { AddressDTO } from 'src/Address/dto/address.dto';
+import { UpdateUserDTO } from 'src/user/dto/update-user.dto';
 @Injectable()
 export class AssociateService {
   constructor(
     private prismaService: PrismaService,
-    private UserService: UserService,
-    private authService: AuthService,
-  ) {}
+    private userService: UserService,
+    private authService: AuthService) {}
 
+  private associateNotExistError(id: string) {
+      throw new NotFoundException(`O associado com o id ${id} não existe.`);
+  }
+  
   async create(data: CreateAssociateDto) {
-    await this.UserService.verifyEmailExists(data.user.email);
+    await this.userService.verifyEmailExists(data.user.email);
 
     const existingAssociate = await this.prismaService.associate.findFirst({
       where: {
@@ -32,8 +37,12 @@ export class AssociateService {
         'Este associado já está vinculado ao plano',
       );
     }
+    
+    this.removeRoleFromUser(data.user);
+    
+    const salt = await bcrypt.genSalt();
+    data.user.password =  await bcrypt.hash(data.user.password, salt);
 
-    data.user.role = Role.ASSOCIATE;
     const associate = {
       ...data,
       user: { create: data.user },
@@ -52,7 +61,7 @@ export class AssociateService {
     };
 
     const savedAssociate = await this.prismaService.associate.create({
-      data: associate,
+      data: associate
     });
 
     return this.authService.createToken(savedAssociate.userId);
@@ -105,9 +114,76 @@ async read() {
       },
     });
   }
+  
+async update(id: string, data: UpdateAssociateDTO) {
+  const associate = await this.prismaService.associate.findUnique({
+    where: { associateId: id },
+    include: { address: true, user: true },
+  });
 
-  async update(id: string, data: CreateAssociateDto) {
-    await this.exists(id);
+  if (!associate) {
+    this.associateNotExistError(id);
+  }
+  let updateData: any = { ...data };
+
+  updateData = {...await this.updateUserIfChanged(associate.user, updateData)};
+  updateData = {...await this.updateAddressIfChanged(associate.address, updateData)};
+
+  return this.prismaService.associate.update({
+    where: {
+      associateId: id,
+    },
+    data: updateData,
+  });
+}
+
+private async updateUserIfChanged(oldUser: UpdateUserDTO, updateData: UpdateAssociateDTO) {
+
+  const userChanged = this.hasUserChanged(oldUser, updateData.user);
+  if (userChanged) {
+    await this.userService.verifyEmailExists(updateData.user.email);
+    this.removeRoleFromUser(updateData.user);
+    if ('password' in updateData.user) 
+      delete updateData.user.password;
+    
+    return { ...updateData, user: { update: updateData.user } };
+  }
+
+  const { user, ...newUpdatedData } = updateData;
+  return newUpdatedData;
+}
+
+  private updateAddressIfChanged(oldAddress: AddressDTO, updateData: UpdateAssociateDTO) {
+    const addressChanged = this.hasAddressChanged(oldAddress, updateData.address);
+
+    if (addressChanged) {
+      return {...updateData,
+        address: {
+            connectOrCreate: {
+              where: {
+                zipCode_number: {
+                  zipCode: updateData.address.zipCode,
+                  number: updateData.address.number,
+                },
+              },
+              create: updateData.address,
+            },
+          }
+        };
+
+    } 
+    
+    const { address, ...newUpdatedData } = updateData;
+    return newUpdatedData;
+  }
+
+
+  private hasAddressChanged(oldAddress, newAddress) {
+    return oldAddress.zipCode !== newAddress.zipCode || oldAddress.number !== newAddress.number;
+  }
+
+  private hasUserChanged(oldUser, newUser) {
+    return oldUser.email !== newUser.email || oldUser.name !== newUser.name; 
   }
 
   async delete(id: string) {
@@ -125,7 +201,12 @@ async read() {
     });
 
     if (count === 0) {
-      throw new NotFoundException(`O associado com o id ${id} não existe.`);
+      this.associateNotExistError(id);
     }
+  }
+
+  private removeRoleFromUser(user: any) {
+    if ('role' in user) 
+      delete user.role;
   }
 }
