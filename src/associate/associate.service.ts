@@ -112,6 +112,29 @@ async read() {
       where: {
         associateId: id,
       },
+      select: {
+      associateId: true,
+      phone: true,
+      birthAt: true,
+      document: true,
+      healthInsuranceIdentifier: true,
+      address: {
+        select: {
+          street: true,
+          number: true,
+          neighborhood: true,
+          city: true,
+          state: true,
+          zipCode: true,
+        }
+      },
+      user: {
+        select: {
+          email: true,
+          name: true,
+        }
+      },
+    },
     });
   }
   
