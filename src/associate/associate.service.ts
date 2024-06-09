@@ -114,6 +114,7 @@ async read() {
       },
       user: {
         select: {
+          photo_url: true,
           email: true,
           name: true,
         }
@@ -149,6 +150,7 @@ async read() {
       },
       user: {
         select: {
+          photo_url: true,
           email: true,
           name: true,
         }
