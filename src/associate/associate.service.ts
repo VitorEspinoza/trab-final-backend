@@ -1,3 +1,4 @@
+
 import {
   BadRequestException,
   Injectable,
@@ -13,6 +14,7 @@ import { AddressDTO } from 'src/Address/dto/address.dto';
 import { UpdateUserDTO } from 'src/user/dto/update-user.dto';
 import { UserService } from 'src/user/user.service';
 import { UpdateAssociateDTO } from './dto/update-associate.dto';
+import { UserDTO } from 'src/user/dto/user.dto';
 
 @Injectable()
 export class AssociateService{
@@ -44,18 +46,20 @@ export class AssociateService{
     const salt = await bcrypt.genSalt();
     data.user.password =  await bcrypt.hash(data.user.password, salt);
 
-      let photo_url = null;
-        let photoUploadError = null;
-        
-        if(photo)
-        try {
-            const { fileName } = await this.fileService.uploadUserPhoto(photo);
-            photo_url = this.azureUrl + fileName;
-        } catch (error) {
-            photoUploadError = 'Falha ao enviar a foto';
-        }
+    const photoConfig = {
+      url: null,
+      uploadError: null,
+    }
 
-    const user = {...data.user, photo_url: photo_url};
+    if(photo)
+    try {
+        const { fileName } = await this.fileService.uploadUserPhoto(photo);
+        photoConfig.url = this.azureUrl + fileName;
+    } catch (error) {
+        photoConfig.uploadError = 'Falha ao enviar a foto';
+    }
+
+    const user = {...data.user, photo_url: photoConfig.url};
     const associate = {
       ...data,
       user: { create: user },
@@ -77,7 +81,7 @@ export class AssociateService{
         const { accessToken } = await this.authService.createToken(savedAssociate.userId);
         return {
             accessToken,
-            photoUploadError,
+            uploadError: photoConfig.uploadError,
             associate: savedAssociate
         }
   }
@@ -153,7 +157,7 @@ async read() {
     });
   }
   
-async update(id: string, data: UpdateAssociateDTO) {
+async update(id: string, data: UpdateAssociateDTO, photo: Express.Multer.File) {
   const associate = await this.prismaService.associate.findUnique({
     where: { associateId: id },
     include: { address: true, user: true },
@@ -164,7 +168,25 @@ async update(id: string, data: UpdateAssociateDTO) {
   }
   let updateData: any = { ...data };
 
-  updateData = {...await this.updateUserIfChanged(associate.user, updateData)};
+  
+  
+  const photoConfig = {
+    url: null,
+    uploadError: null,
+  }
+
+  if(photo)
+    try {
+        const { fileName } = await this.fileService.uploadUserPhoto(photo);
+      
+        await this.fileService.deleteUserPhoto(associate.user.photo_url);
+        photoConfig.url = this.azureUrl + fileName;
+    } catch (error) {
+        photoConfig.uploadError = 'Falha ao enviar a foto';
+    }
+
+
+  updateData = {...await this.updateUserIfChanged(associate.user, updateData, photoConfig.url)};
   updateData = {...await this.updateAddressIfChanged(associate.address, updateData)};
 
   return this.prismaService.associate.update({
@@ -175,20 +197,23 @@ async update(id: string, data: UpdateAssociateDTO) {
   });
 }
 
-private async updateUserIfChanged(oldUser: UpdateUserDTO, updateData: UpdateAssociateDTO) {
+private async updateUserIfChanged(oldUser: UserDTO, updateData: UpdateAssociateDTO, photoUrl: string) {
 
-  const userChanged = this.hasUserChanged(oldUser, updateData.user);
+  const userChanged = this.hasUserChanged(oldUser, updateData.user, photoUrl);
   if (userChanged) {
-    await this.userService.verifyEmailExists(updateData.user.email);
-    this.removeRoleFromUser(updateData.user);
-    if ('password' in updateData.user) 
-      delete updateData.user.password;
-    
-    return { ...updateData, user: { update: updateData.user } };
+    return this.updateUser(oldUser, updateData, photoUrl);
   }
 
   const { user, ...newUpdatedData } = updateData;
   return newUpdatedData;
+}
+
+private async updateUser(oldUser: UserDTO, updateData: UpdateAssociateDTO, photoUrl: string) {
+    if(oldUser.email !== updateData.user.email)
+      await this.userService.verifyEmailExists(updateData.user.email);
+    this.removeRoleFromUser(updateData.user);
+    const user = {...updateData.user, password: oldUser.password, photo_url: photoUrl};
+    return { ...updateData, user: { update: user } };
 }
 
   private updateAddressIfChanged(oldAddress: AddressDTO, updateData: UpdateAssociateDTO) {
@@ -220,8 +245,8 @@ private async updateUserIfChanged(oldUser: UpdateUserDTO, updateData: UpdateAsso
     return oldAddress.zipCode !== newAddress.zipCode || oldAddress.number !== newAddress.number;
   }
 
-  private hasUserChanged(oldUser, newUser) {
-    return oldUser.email !== newUser.email || oldUser.name !== newUser.name; 
+  private hasUserChanged(oldUser, newUser, photoUrl) {
+    return oldUser.email !== newUser.email || oldUser.name !== newUser.name || photoUrl; 
   }
 
   async delete(id: string) {

@@ -52,12 +52,20 @@ export class AssociateController {
     return this.associateService.readById(id);
   }
 
+  @UseInterceptors(FileInterceptor('photo'), ParseJsonInterceptor)
+  @UsePipes(new ValidationPipe(), new ParseJsonPipe(UpdateAssociateDTO))
   @UserOwnsRouteOptions({ allowAdmin: true})
   @Roles(Role.ADMIN, Role.ASSOCIATE)
   @UseGuards(AuthGuard, RoleGuard, UserOwnsRouteGuard)
   @Put(':id')
-  async update(@Body() body: UpdateAssociateDTO, @Param('id') id: string) {
-    return this.associateService.update(id, body);
+  async update(@Body() body: UpdateAssociateDTO, @Param('id') id: string,  @UploadedFile(new ParseFilePipe({
+        validators: [
+            new FileTypeValidator({fileType: /(jpg|jpeg|png)$/}),
+            new MaxFileSizeValidator({maxSize: 1024 * 5000}),
+        ],
+        fileIsRequired: false
+    })) photo?: Express.Multer.File) {
+    return this.associateService.update(id, body, photo);
   }
 
   @UserOwnsRouteOptions({ allowAdmin: true})

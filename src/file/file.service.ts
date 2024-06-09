@@ -15,7 +15,8 @@ export class FileService {
     }
 
     private getBlobNameFromUrl(photoUrl: string) {
-        const url = new URL(photoUrl);
+        const fullUrl = photoUrl.startsWith('https://') ? photoUrl : 'https://' + photoUrl;
+        const url = new URL(fullUrl);
         return url.pathname.split('/').pop();
     }
 
@@ -31,6 +32,9 @@ export class FileService {
     async deleteUserPhoto(photoUrl: string) {
             const blobName = this.getBlobNameFromUrl(photoUrl);
             const blockBlobClient = this.containerClient.getBlockBlobClient(blobName);
-            return blockBlobClient.delete();   
+
+            if(await blockBlobClient.exists()) 
+                await blockBlobClient.delete();
+      
     }
 }
