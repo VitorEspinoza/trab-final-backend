@@ -10,8 +10,8 @@ import { UserService } from "./user.service";
 
 
 
-@Roles(Role.ADMIN, Role.ASSOCIATE)
-@UseGuards(AuthGuard, RoleGuard, UserOwnsRouteGuard)
+@Roles(Role.ADMIN)
+@UseGuards(AuthGuard, RoleGuard)
 @Controller('users')
 export class UserController {
     constructor(private readonly userService: UserService) {}
@@ -27,11 +27,7 @@ export class UserController {
         return this.userService.readById(id);
     }
 
-    @Put(':id') 
-    async update(@Body() body : UserDTO, @Param('id') id: string) {
-        return this.userService.update(id, body);
-    }
-
+    @Roles(Role.ADMIN)
     @Delete(':id')
     async delete(@Param('id') id: string) {
         return this.userService.delete(id);
