@@ -1,5 +1,4 @@
-import { IsEmail, IsEnum, IsString, IsStrongPassword, MaxLength } from "class-validator";
-import { Role } from "src/enums/role.enum";
+import { IsEmail, IsString, IsStrongPassword, MaxLength } from "class-validator";
 
 export class UserDTO {
     @IsString()
@@ -18,9 +17,4 @@ export class UserDTO {
         minLowercase: 0,
     })
     password: string;
-
-    @IsEnum(Object.values(Role), {
-        message: 'Valid role required'
-    })
-    role: Role.ASSOCIATE | Role.ADMIN = Role.ASSOCIATE;
 }

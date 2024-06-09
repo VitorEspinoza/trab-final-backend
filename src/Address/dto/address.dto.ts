@@ -1,6 +1,6 @@
 import { IsString, MaxLength, Length } from 'class-validator';
 
-export class AdressDTO {
+export class AddressDTO {
   @IsString()
   @MaxLength(40)
   city: string;

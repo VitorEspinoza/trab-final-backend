@@ -1,11 +1,4 @@
-import { Type } from 'class-transformer';
-import {
-  IsArray,
-  MaxLength,
-  IsString,
-  ValidateNested,
-} from 'class-validator';
-import { UnitDTO } from 'src/unit/dto/unit.dto';
+import { MaxLength, IsString, IsArray } from 'class-validator';
 
 export class DoctorDTO {
   @IsString()
@@ -13,18 +6,15 @@ export class DoctorDTO {
 
   @IsString()
   @MaxLength(11)
-  Document: string;
+  document: string;
 
   @IsString()
   @MaxLength(9)
-  MedicalRegistrationNumber: string;
+  medicalRegistrationNumber: string;
 
   @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => DoctorDTO)
-  specialty: DoctorDTO[];
+  specialties: { specialtyId: string; isPrincipalSpecialty: boolean }[];
 
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => UnitDTO)
-  unit: UnitDTO[];}
+  @IsString()
+  unitId: string;
+}
