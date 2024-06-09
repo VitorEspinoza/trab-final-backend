@@ -1,4 +1,4 @@
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsDate,
   IsMobilePhone,
@@ -6,24 +6,22 @@ import {
   Length,
   ValidateNested,
 } from 'class-validator';
-import { AddressDTO } from 'src/adress/dto/address.dto';
+import { AddressDTO } from 'src/Address/dto/address.dto';
+import { UpdateUserDTO } from 'src/user/dto/update-user.dto';
 import { UserDTO } from 'src/user/dto/user.dto';
 
-export class AssociateDto {
+export class UpdateAssociateDTO {
   @IsMobilePhone('pt-BR')
   @Length(11)
   phone: string;
 
   @IsDate()
+  @Transform(({ value }) => new Date(value))
   birthAt: Date;
-
-  @IsString()
-  @Length(20)
-  healthInsuranceIdentifier: string;
 
   @ValidateNested()
   @Type(() => UserDTO)
-  user: UserDTO;
+  user: UpdateUserDTO;
 
   @ValidateNested()
   @Type(() => AddressDTO)

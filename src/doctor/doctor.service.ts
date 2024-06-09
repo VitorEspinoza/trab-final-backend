@@ -6,11 +6,11 @@ import {
 
 import { PrismaService } from 'src/prisma/prisma.service';
 import { DoctorDTO } from './dto/doctor.dto';
-import { RemoveDoctorSpecialtyDTO } from './dto/remove-doctor-specialty.dto';
+import { UnitService } from 'src/unit/unit.service';
 
 @Injectable()
 export class DoctorService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(private prismaService: PrismaService, private unitService: UnitService ) {}
 
   async create(data: DoctorDTO) {
     const existingDoctor = await this.prismaService.doctor.findFirst({
@@ -23,100 +23,105 @@ export class DoctorService {
       throw new BadRequestException('Este doutor já está vinculado no plano');
     }
 
-    const { unitId, ...dataWithoutUnitId } = data;
-
-    const specialties = data.specialties.map((specialty) => ({
-      specialtyId: specialty.specialtyId,
-      isPrincipalSpecialty: specialty.isPrincipalSpecialty,
-    }));
-
-    return this.prismaService.doctor.create({
-      data: {
-        ...dataWithoutUnitId,
-        unit: {
-          connect: {
-            unitId: unitId,
-          },
-        },
-        specialties: {
-          create: specialties,
-        },
-      },
-    });
+    await this.unitService.validateUnitExistence(data.unitId);
+    
+    return this.createDoctor(data);
   }
-  async read() {
-    return this.prismaService.doctor.findMany({
-      include: {
-        specialties: {
-          include: {
-            specialties: true,
-          },
-        },
+
+async read() {
+  const doctors = await this.prismaService.doctor.findMany({
+    select: {
+      doctorId: true,
+      document: true,
+      medicalRegistrationNumber: true,
+      name: true,
+      unit: {
+        select: {
+          address: true,
+          displayName: true,
+        }
       },
-    });
-  }
+      specialties: {
+        select: {
+          isPrincipalSpecialty: true,
+          specialtyDetail: {
+            select: {
+              specialtyId: true,
+              name: true
+            }
+          }
+        }
+      }
+    },
+  });
+
+  return doctors.map(this.mapDoctor);
+}
 
   async readById(id: string) {
     await this.exists(id);
-    return await this.prismaService.doctor.findUnique({
+    const doctor = await this.prismaService.doctor.findUnique({
       where: {
         doctorId: id,
       },
-      include: {
-        specialties: {
-          include: {
-            specialties: true,
-          },
+      select: {
+        doctorId: true,
+        document: true,
+        medicalRegistrationNumber: true,
+        name: true,
+        unit: {
+          select: {
+            address: true,
+            displayName: true,
+          }
         },
+        specialties: {
+        select: {
+          isPrincipalSpecialty: true,
+          specialtyDetail: {
+            select: {
+              specialtyId: true,
+              name: true
+              }
+            }
+          }
+        }
       },
     });
+
+    return this.mapDoctor(doctor);
   }
 
   async update(id: string, data: DoctorDTO) {
-    await this.exists(id);
-    const { unitId, ...dataWithoutUnitId } = data;
+  await this.exists(id);
+  await this.unitService.validateUnitExistence(data.unitId);
 
-    const specialties = data.specialties.map((specialty) => ({
-      specialtyId: specialty.specialtyId,
-      isPrincipalSpecialty: specialty.isPrincipalSpecialty,
-    }));
+  try {
+    const transaction = await this.prismaService.$transaction([
+      this.deleteDoctorSpecialties(id),
+      this.updateDoctor(id, data)
+    ]);
 
-    await this.prismaService.doctor.update({
-      where: {
-        doctorId: id,
-      },
-      data: {
-        ...dataWithoutUnitId,
-        unit: {
-          connect: {
-            unitId: unitId,
-          },
-        },
-        specialties: {
-          create: specialties,
-        },
-      },
-    });
-    return this.exists(id);
+    return transaction[1];
+  } catch(e) {
+    throw new BadRequestException('Não foi possível fazer a alteração', e);
+  }
+}
+
+  async delete(id: string) {
+   await this.exists(id);
+
+  try {
+    const transaction = await this.prismaService.$transaction([
+      this.deleteDoctorSpecialties(id),
+      this.deleteDoctor(id)
+    ]);
+
+    return transaction[1];
+  } catch(e) {
+      throw new BadRequestException('Não foi possível fazer a exclusão', e);
   }
 
-  async patch(id: string, data) {
-    await this.exists(id);
-    return this.prismaService.doctor.update({
-      where: {
-        doctorId: id,
-      },
-      data,
-    });
-  }
-
-  async removeDoctorSpecialty(id: string, data: RemoveDoctorSpecialtyDTO) {
-    await this.exists(id);
-    return this.prismaService.doctorHasSpecialty.delete({
-      where: {
-        doctorHasSpecialtyId: data.doctorHasSpecialtyId,
-      },
-    });
   }
 
   async exists(id: string) {
@@ -127,7 +132,78 @@ export class DoctorService {
         },
       }))
     ) {
-      throw new NotFoundException(`O endereço ${id} não existe.`);
+        throw new NotFoundException('O doutor informado não existe no plano');
     }
+  }
+
+
+  private deleteDoctorSpecialties(doctorId: string) {
+    return this.prismaService.doctorHasSpecialty.deleteMany({
+    where: {
+      doctorId: doctorId,
+    },
+  });
+}
+
+  private updateDoctor(doctorId: string, data: DoctorDTO){
+    const { unitId, ...dataWithoutUnitId } = data;
+      return this.prismaService.doctor.update({
+      where: {
+        doctorId: doctorId,
+      },
+      data: {
+        ...dataWithoutUnitId,
+        unit: {
+          connect: {
+            unitId: unitId,
+          },
+        },
+        specialties: {
+          create: data.specialties,
+        },
+      },
+    });
+  }
+
+  private deleteDoctor(doctorId: string) {
+    return this.prismaService.doctor.delete({
+      where: {
+        doctorId: doctorId,
+      },
+    });
+  }
+
+
+  private async createDoctor(data: DoctorDTO) {
+    const { unitId, ...dataWithoutUnitId } = data;
+
+    return this.prismaService.doctor.create({
+      data: {
+        ...dataWithoutUnitId,
+        unit: {
+          connect: {
+            unitId: unitId,
+          },
+        },
+        specialties: {
+          create: data.specialties,
+        },
+      },
+    });
+  }
+
+  private mapDoctorSpecialty = (specialty) => {
+    return {
+      isPrincipalSpecialty: specialty.isPrincipalSpecialty,
+      specialtyId: specialty.specialtyDetail.specialtyId,
+      name: specialty.specialtyDetail.name
+    };
+  }
+
+  private mapDoctor = (doctor) => {
+    return {
+      ...doctor,
+      specialties: doctor.specialties.map(this.mapDoctorSpecialty)
+    };
   }
 }

@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { Module } from '@nestjs/common';
 
 
 import { AuthModule } from "src/auth/auth.module";
@@ -18,6 +18,4 @@ import { FileModule } from "src/file/file.module";
     controllers: [AssociateController],
     providers: [AssociateService]
 })
-export class AssociateModule {
-    
-}
+export class AssociateModule {}

@@ -6,16 +6,24 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { UnitService } from './unit.service';
-import { CreateUnitDto } from './dto/create-unit.dto';
+import { Roles } from 'src/decorators/role.decorator';
+import { AuthGuard } from 'src/guards/auth.guard';
+import { RoleGuard } from 'src/guards/role.guard';
+import { Role } from 'src/enums/role.enum';
+import { UnitDTO } from './dto/unit.dto';
 
+@Roles(Role.ASSOCIATE, Role.ADMIN)
+@UseGuards(AuthGuard, RoleGuard)
 @Controller('units')
 export class UnitController {
   constructor(private readonly unitService: UnitService) {}
 
+  @Roles(Role.ADMIN)
   @Post()
-  async create(@Body() body: CreateUnitDto) {
+  async create(@Body() body: UnitDTO) {
     return this.unitService.create(body);
   }
 
@@ -29,13 +37,15 @@ export class UnitController {
     return this.unitService.readById(id);
   }
 
+  @Roles(Role.ADMIN)
   @Put(':id')
-  async update(@Param('id') id: string, @Body() body: CreateUnitDto) {
+  async update(@Param('id') id: string, @Body() body: UnitDTO) {
     return this.unitService.update(id, body);
   }
 
+  @Roles(Role.ADMIN)
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  async delete(@Param('id') id: string) {
     return this.unitService.delete(id);
   }
 }

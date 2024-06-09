@@ -5,7 +5,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
-import { AddressModule } from './adress/address.module';
+import { AddressModule } from './Address/address.module';
 import { AssociateModule } from './associate/associate.module';
 import { DoctorModule } from './doctor/doctor.module';
 import { UnitModule } from './unit/unit.module';

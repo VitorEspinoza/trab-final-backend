@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from "@nestjs/comm
 
 import { AddressDTO } from "./dto/address.dto";
 import { PrismaService } from "src/prisma/prisma.service";
-import { Adress } from "@prisma/client";
+import { Address } from "@prisma/client";
 
 @Injectable()
 export class AddressService{
@@ -16,7 +16,7 @@ async create(data: AddressDTO) {
       throw new BadRequestException('Esse endereço já existe');
     }
   
-    return this.prismaService.adress.create({
+    return this.prismaService.address.create({
       data,
       select: {
         addressId: true,
@@ -25,12 +25,12 @@ async create(data: AddressDTO) {
 }
 
 async read() {
-     return this.prismaService.adress.findMany();
+     return this.prismaService.address.findMany();
 }
 
 async readById(id: string) {
     await this.exists(id);
-   return this.prismaService.adress.findUnique({
+   return this.prismaService.address.findUnique({
             where: {
                 addressId: id,
             }
@@ -38,7 +38,7 @@ async readById(id: string) {
   }
   async update(id: string, data: AddressDTO) {
     await this.exists(id);
-    await this.prismaService.adress.update({
+    await this.prismaService.address.update({
       data, 
       where: {
         addressId: id,
@@ -49,7 +49,7 @@ async readById(id: string) {
 
   async delete(id: string) {
     await this.exists(id);
-    return this.prismaService.adress.delete({
+    return this.prismaService.address.delete({
       where: { 
         addressId: id 
       },
@@ -57,7 +57,7 @@ async readById(id: string) {
   }
 
   async exists(id: string) {
-        if (!(await this.prismaService.adress.count({
+        if (!(await this.prismaService.address.count({
             where: {
                addressId: id,
             }
@@ -66,8 +66,8 @@ async readById(id: string) {
         }
     }
 
-    verifyExistenceAddress(zipCode: string, number: string): Promise<Adress> {
-        return this.prismaService.adress.findFirst({
+    verifyExistenceAddress(zipCode: string, number: string): Promise<Address> {
+        return this.prismaService.address.findFirst({
             where: {
                  zipCode: zipCode,
                 number: number,

@@ -25,7 +25,7 @@ model User {
   associate Associate?
 }
 
-model Adress {
+model Address {
   addressId    String      @id @default(cuid())
   street       String      @db.VarChar(100)
   number       String      @db.VarChar(5)
@@ -48,7 +48,7 @@ model Associate {
   document                  String   @db.VarChar(11)
   healthInsuranceIdentifier String   @db.VarChar(20)
   addressId                 String
-  address                   Adress   @relation(fields: [addressId], references: [addressId])
+  address                   Address  @relation(fields: [addressId], references: [addressId])
   userId                    String   @unique
   user                      User     @relation(fields: [userId], references: [userId])
   createdAt                 DateTime @default(now())
@@ -72,7 +72,7 @@ model Unit {
   createdAt   DateTime           @default(now())
   updatedAt   DateTime           @updatedAt
   addressId   String             @unique
-  address     Adress             @relation(fields: [addressId], references: [addressId])
+  address     Address            @relation(fields: [addressId], references: [addressId])
   specialties UnitHasSpecialty[]
 }
 
@@ -81,7 +81,7 @@ model UnitHasSpecialty {
   unitId               String
   specialtyId          String
   unit                 Unit      @relation(fields: [unitId], references: [unitId])
-  specialties          Specialty @relation(fields: [specialtyId], references: [specialtyId])
+  specialtyDetail      Specialty @relation(fields: [specialtyId], references: [specialtyId])
   isPrincipalSpecialty Boolean   @default(false)
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
@@ -97,7 +97,6 @@ model Doctor {
   unit                      Unit                 @relation(fields: [unitId], references: [unitId])
   createdAt                 DateTime             @default(now())
   updatedAt                 DateTime             @updatedAt
-  status                    DoctorStatus         @default(ACTIVE)
 }
 
 model DoctorHasSpecialty {
@@ -105,7 +104,7 @@ model DoctorHasSpecialty {
   doctorId             String
   doctor               Doctor    @relation(fields: [doctorId], references: [doctorId])
   specialtyId          String
-  specialties          Specialty @relation(fields: [specialtyId], references: [specialtyId])
+  specialtyDetail      Specialty @relation(fields: [specialtyId], references: [specialtyId])
   isPrincipalSpecialty Boolean   @default(false)
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
@@ -114,9 +113,4 @@ model DoctorHasSpecialty {
 enum Role {
   ASSOCIATE
   ADMIN
-}
-
-enum DoctorStatus {
-  ACTIVE
-  INACTIVE
 }

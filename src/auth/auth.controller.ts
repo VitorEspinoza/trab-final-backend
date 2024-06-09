@@ -17,16 +17,12 @@ export class AuthController  {
     return this.authService.login(body.email, body.password);
   }
  
-  @Post('register')
-  async register(@Body() body: AuthRegisterDTO) {
-    return this.authService.register(body);
-  }
 
   @Roles(Role.ADMIN)
   @UseGuards(AuthGuard, RoleGuard)
   @Post('register/admin')
   async registerAdmin(@Body() body: AuthRegisterDTO) {
-    return this.authService.register(body, true);
+    return this.authService.registerAdmin(body);
   }
 
 }
