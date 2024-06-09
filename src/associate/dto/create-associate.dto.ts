@@ -8,6 +8,7 @@ import {
 } from 'class-validator';
 import { AddressDTO } from 'src/Address/dto/address.dto';
 import { UserDTO } from 'src/user/dto/user.dto';
+import { IsCPF } from 'src/validators/cpf.validator';
 
 export class CreateAssociateDto {
   @IsMobilePhone('pt-BR')
@@ -26,7 +27,6 @@ export class CreateAssociateDto {
   @Type(() => AddressDTO)
   address: AddressDTO;
 
-  @IsString()
-  @Length(11)
+  @IsCPF({ message: 'invalid document' })
   document: string;
 }
