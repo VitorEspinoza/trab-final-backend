@@ -80,7 +80,7 @@ model UnitHasSpecialty {
   unitHasSpecialtyId   String    @id @default(cuid())
   unitId               String
   specialtyId          String
-  unit                 Unit      @relation(fields: [unitId], references: [unitId])
+  unit                 Unit      @relation(fields: [unitId], references: [unitId], onDelete: Cascade)
   specialtyDetail      Specialty @relation(fields: [specialtyId], references: [specialtyId])
   isPrincipalSpecialty Boolean   @default(false)
   createdAt            DateTime  @default(now())
@@ -94,7 +94,7 @@ model Doctor {
   medicalRegistrationNumber String               @db.VarChar(11)
   specialties               DoctorHasSpecialty[]
   unitId                    String
-  unit                      Unit                 @relation(fields: [unitId], references: [unitId])
+  unit                      Unit                 @relation(fields: [unitId], references: [unitId], onDelete: Cascade)
   createdAt                 DateTime             @default(now())
   updatedAt                 DateTime             @updatedAt
 }
@@ -102,7 +102,7 @@ model Doctor {
 model DoctorHasSpecialty {
   doctorHasSpecialtyId String    @id @default(cuid())
   doctorId             String
-  doctor               Doctor    @relation(fields: [doctorId], references: [doctorId])
+  doctor               Doctor    @relation(fields: [doctorId], references: [doctorId], onDelete: Cascade)
   specialtyId          String
   specialtyDetail      Specialty @relation(fields: [specialtyId], references: [specialtyId])
   isPrincipalSpecialty Boolean   @default(false)

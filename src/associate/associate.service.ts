@@ -27,6 +27,8 @@ export class AssociateService{
     private azureUrl = 'trabweb1.blob.core.windows.net/user-photos/';
 
     async create(data: CreateAssociateDto, photo: Express.Multer.File) {
+
+      
         await this.userService.verifyEmailExists(data.user.email);
 
     const existingAssociate = await this.prismaService.associate.findFirst({
@@ -46,19 +48,8 @@ export class AssociateService{
     const salt = await bcrypt.genSalt();
     data.user.password =  await bcrypt.hash(data.user.password, salt);
 
-    const photoConfig = {
-      url: null,
-      uploadError: null,
-    }
-
-    if(photo)
-    try {
-        const { fileName } = await this.fileService.uploadUserPhoto(photo);
-        photoConfig.url = this.azureUrl + fileName;
-    } catch (error) {
-        photoConfig.uploadError = 'Falha ao enviar a foto';
-    }
-
+ 
+    const photoConfig = await this.uploadPhoto(photo);
     const user = {...data.user, photo_url: photoConfig.url};
     const associate = {
       ...data,
@@ -77,8 +68,10 @@ export class AssociateService{
       healthInsuranceIdentifier: this.generateInsuranceIdentifierString(),
     };
 
- const savedAssociate = await this.prismaService.associate.create({ data: associate} );
-        const { accessToken } = await this.authService.createToken(savedAssociate.userId);
+ const savedAssociate = await this.prismaService.associate.create({ data: associate, select: {
+  user: true,
+ }} );
+        const { accessToken } = await this.authService.createToken(savedAssociate.user.userId);
         return {
             accessToken,
             uploadError: photoConfig.uploadError,
@@ -158,6 +151,44 @@ async read() {
     },
     });
   }
+
+    async readByUserId(userId: string) {
+    const associate =  this.prismaService.associate.findUnique({
+      where: {
+        userId
+      },
+      select: {
+      associateId: true,
+      phone: true,
+      birthAt: true,
+      document: true,
+      healthInsuranceIdentifier: true,
+      address: {
+        select: {
+          street: true,
+          number: true,
+          neighborhood: true,
+          city: true,
+          state: true,
+          zipCode: true,
+        }
+      },
+      user: {
+        select: {
+          photo_url: true,
+          email: true,
+          name: true,
+        }
+      },
+    },
+    });
+
+    if (!associate) {
+      throw new NotFoundException('O associado com esse id de usuário não existe.');
+    }
+
+    return associate;
+  }
   
 async update(id: string, data: UpdateAssociateDTO, photo: Express.Multer.File) {
   const associate = await this.prismaService.associate.findUnique({
@@ -172,22 +203,8 @@ async update(id: string, data: UpdateAssociateDTO, photo: Express.Multer.File) {
 
   
   
-  const photoConfig = {
-    url: null,
-    uploadError: null,
-  }
-
-  if(photo)
-    try {
-        const { fileName } = await this.fileService.uploadUserPhoto(photo);
-      
-        await this.fileService.deleteUserPhoto(associate.user.photo_url);
-        photoConfig.url = this.azureUrl + fileName;
-    } catch (error) {
-        photoConfig.uploadError = 'Falha ao enviar a foto';
-    }
-
-
+  const photoConfig = await this.uploadPhoto(photo);
+  
   updateData = {...await this.updateUserIfChanged(associate.user, updateData, photoConfig.url)};
   updateData = {...await this.updateAddressIfChanged(associate.address, updateData)};
 
@@ -277,5 +294,21 @@ private async updateUser(oldUser: UserDTO, updateData: UpdateAssociateDTO, photo
   private removeRoleFromUser(user: any) {
     if ('role' in user) 
       delete user.role;
+  }
+
+  private async uploadPhoto(photo: Express.Multer.File) {
+    const photoConfig = {
+      url: null,
+      uploadError: null,
+    }
+
+    if(photo)
+    try {
+        const { fileName } = await this.fileService.uploadUserPhoto(photo);
+        photoConfig.url = this.azureUrl + fileName;
+    } catch (error) {
+        photoConfig.uploadError = 'Falha ao enviar a foto';
+    }
+    return photoConfig;
   }
 }

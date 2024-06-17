@@ -32,7 +32,6 @@ export class AssociateController {
         ],
         fileIsRequired: false
     })) photo?: Express.Multer.File){    
-        
       return this.associateService.create(body, photo);
     }
 
@@ -52,6 +51,15 @@ export class AssociateController {
     return this.associateService.readById(id);
   }
 
+  @UserOwnsRouteOptions({ allowAdmin: true})
+  @Roles(Role.ADMIN, Role.ASSOCIATE)
+  @UseGuards(AuthGuard, RoleGuard, UserOwnsRouteGuard)
+  @Get('by-user/:id')
+  async readByUserId(@Param('id') id: string) {
+    return this.associateService.readByUserId(id);
+  }
+
+
   @UseInterceptors(FileInterceptor('photo'), ParseJsonInterceptor)
   @UsePipes(new ValidationPipe(), new ParseJsonPipe(UpdateAssociateDTO))
   @UserOwnsRouteOptions({ allowAdmin: true})
@@ -65,6 +73,7 @@ export class AssociateController {
         ],
         fileIsRequired: false
     })) photo?: Express.Multer.File) {
+      
     return this.associateService.update(id, body, photo);
   }
 

@@ -71,6 +71,7 @@ async read() {
         name: true,
         unit: {
           select: {
+            unitId: true,
             address: true,
             displayName: true,
           }
@@ -147,7 +148,8 @@ async read() {
 
   private updateDoctor(doctorId: string, data: DoctorDTO){
     const { unitId, ...dataWithoutUnitId } = data;
-      return this.prismaService.doctor.update({
+
+    return this.prismaService.doctor.update({
       where: {
         doctorId: doctorId,
       },

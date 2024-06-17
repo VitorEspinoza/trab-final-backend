@@ -58,19 +58,27 @@ async login(email: string, password: string){
    const user = await this.prismaService.user.findFirst({
             where: {
                 email
+            },
+            select: {
+                userId: true,
+                name: true,
+                password: true,
+                email: true,
+                role: true
             }
         });
 
     if (!user) 
       throw new UnauthorizedException('E-mail e/ou senha incorretos.');
     
-
+  
     const incorrectPassword = !await bcrypt.compare(password, user.password);
 
     if(incorrectPassword) 
       throw new UnauthorizedException('E-mail e/ou senha incorretos.');
 
-    return this.createToken(user.userId);
+    const token = this.createToken(user.userId);
+    return  { user: user, accessToken: token.accessToken};
  
 }
 
