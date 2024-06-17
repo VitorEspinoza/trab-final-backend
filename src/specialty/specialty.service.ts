@@ -26,6 +26,23 @@ export class SpecialtyService {
     async delete(id: string) {
         await this.exists(id);
 
+        const linkedUnits = await this.prismaService.unitHasSpecialty.findMany({
+            where: { specialtyId: id },
+        });
+
+        if (linkedUnits.length > 0) {
+             throw new BadRequestException('This specialty is associated with one or more units');
+        }
+
+        const linkedDoctors = await this.prismaService.doctorHasSpecialty.findMany({
+            where: { specialtyId: id },
+        });
+
+        if (linkedDoctors.length > 0) {
+            throw new BadRequestException('This specialty is associated with one or more doctors');
+        }
+
+        
         return await this.prismaService.specialty.delete({
             where: {
                 specialtyId: id

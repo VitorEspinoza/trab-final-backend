@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 import { AddressDTO } from 'src/Address/dto/address.dto';
 import { UpdateUserDTO } from 'src/user/dto/update-user.dto';
-import { UserDTO } from 'src/user/dto/user.dto';
+
 import { IsCPF } from 'src/validators/cpf.validator';
 
 export class UpdateAssociateDTO {
@@ -21,7 +21,7 @@ export class UpdateAssociateDTO {
   birthAt: Date;
 
   @ValidateNested()
-  @Type(() => UserDTO)
+  @Type(() => UpdateUserDTO)
   user: UpdateUserDTO;
 
   @ValidateNested()

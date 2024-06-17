@@ -53,6 +53,7 @@ export class UnitService {
     const units = await this.prismaService.unit.findMany({
       select: {
         unitId: true,
+        name: true,
         displayName: true,
         address: true,
         specialties: {
@@ -78,6 +79,7 @@ export class UnitService {
       select: {
       unitId: true,
       displayName: true,
+      name: true,
       address: true,
       specialties: {
         select: {
@@ -176,7 +178,8 @@ export class UnitService {
       return transaction[1];
     }
     catch (e) {
-      throw new BadRequestException('Não foi possível deletar a unidade');
+      console.log("ERRO", e)
+      throw new BadRequestException('Não foi possível deletar a unidade', e);
     }
   }
 
